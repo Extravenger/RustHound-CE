@@ -23,7 +23,7 @@ You can use the **make** command to install RustHound or to compile it for Linux
 
 ```bash
 make install
-rusthound-ce -h
+nonehound -h
 ```
 
 More command in the **Makefile**:
@@ -61,13 +61,13 @@ usage: make install_macos_deps
 Use RustHound with Docker to make sure to have all dependencies.
 
 ```bash
-docker build --rm -t rusthound-ce .
+docker build --rm -t nonehound .
 
 # Then
-docker run --rm -v $PWD:/usr/src/rusthound-ce rusthound-ce help
-docker run --rm -v $PWD:/usr/src/rusthound-ce rusthound-ce windows
-docker run --rm -v $PWD:/usr/src/rusthound-ce rusthound-ce linux
-docker run --rm -v $PWD:/usr/src/rusthound-ce rusthound-ce macos
+docker run --rm -v $PWD:/usr/src/nonehound nonehound help
+docker run --rm -v $PWD:/usr/src/nonehound nonehound windows
+docker run --rm -v $PWD:/usr/src/nonehound nonehound linux
+docker run --rm -v $PWD:/usr/src/nonehound nonehound macos
 ```
 
 <details><summary><b>SHOW MORE COMPILATION METHODS</b></summary>
@@ -89,7 +89,7 @@ sudo apt-get -y update && sudo apt-get -y install gcc clang libclang-dev libgssa
 Here is how to compile the "release" and "debug" versions using the **cargo** command.
 
 ```bash
-git clone https://github.com/g0h4n/RustHound-CE
+git clone https://github.com/g0h4n/nonehound
 cd RustHound
 cargo build --release
 # or debug version
@@ -113,7 +113,7 @@ rustup install stable-x86_64-unknown-linux-gnu
 rustup target add x86_64-unknown-linux-gnu
 
 # Static compilation for Linux
-git clone https://github.com/g0h4n/RustHound-CE
+git clone https://github.com/g0h4n/nonehound
 cd RustHound
 CFLAGS="-lrt";LDFLAGS="-lrt";RUSTFLAGS='-C target-feature=+crt-static';cargo build --release --target x86_64-unknown-linux-gnu
 ```
@@ -131,7 +131,7 @@ rustup install stable-x86_64-pc-windows-gnu
 rustup target add x86_64-pc-windows-gnu
 
 # Static compilation for Windows
-git clone https://github.com/g0h4n/RustHound-CE
+git clone https://github.com/g0h4n/nonehound
 cd RustHound
 RUSTFLAGS="-C target-feature=+crt-static" cargo build --release --target x86_64-pc-windows-gnu
 ```
@@ -160,8 +160,8 @@ grep 'linker = "x86_64-apple-darwin14-clang"' ~/.cargo/config || echo 'linker = 
 grep 'ar = "x86_64-apple-darwin14-clang"' ~/.cargo/config || echo 'ar = "x86_64-apple-darwin14-clang"' >> ~/.cargo/config
 
 # Static compilation for macOS
-git clone https://github.com/g0h4n/RustHound-CE
-cd RustHound-CE
+git clone https://github.com/g0h4n/nonehound
+cd nonehound
 RUSTFLAGS="-C target-feature=+crt-static" cargo build --release --target x86_64-apple-darwin --features nogssapi
 ```
 
@@ -194,8 +194,8 @@ More information [here](https://github.com/johnthagen/min-sized-rust)
 ## How to build the documentation?
 
 ```bash
-git clone https://github.com/g0h4n/rusthound-ce
-cd RustHound-CE
+git clone https://github.com/g0h4n/nonehound
+cd nonehound
 cargo doc --open --no-deps
 ```
 
@@ -207,7 +207,7 @@ cargo doc --open --no-deps
 Active Directory data collector for BloodHound Community Edition.
 g0h4n <https://twitter.com/g0h4n_0>
 
-Usage: rusthound-ce [OPTIONS] --domain <domain>
+Usage: nonehound [OPTIONS] --domain <domain>
 
 Options:
   -v...          Set the level of verbosity
@@ -246,44 +246,44 @@ OPTIONAL MODULES:
 
 ```bash
 # Linux with username:password
-rusthound-ce -d north.sevenkingdoms.local -u 'jeor.mormont@north.sevenkingdoms.local' -p '_L0ngCl@w_' -o /tmp/demo -z
+nonehound -d north.sevenkingdoms.local -u 'jeor.mormont@north.sevenkingdoms.local' -p '_L0ngCl@w_' -o /tmp/demo -z
 
 # Linux with username:password DCOnly collection method
-rusthound-ce -c DCOnly -d north.sevenkingdoms.local -u 'jeor.mormont@north.sevenkingdoms.local' -p '_L0ngCl@w_' -o /tmp/demo -z
+nonehound -c DCOnly -d north.sevenkingdoms.local -u 'jeor.mormont@north.sevenkingdoms.local' -p '_L0ngCl@w_' -o /tmp/demo -z
 
 # Linux with username:password and ldapip
-rusthound-ce -d north.sevenkingdoms.local -i 192.168.56.11 -u 'jeor.mormont@north.sevenkingdoms.local' -p '_L0ngCl@w_' -o /tmp/demo -z
+nonehound -d north.sevenkingdoms.local -i 192.168.56.11 -u 'jeor.mormont@north.sevenkingdoms.local' -p '_L0ngCl@w_' -o /tmp/demo -z
 
 # Linux with username:password and ldaps
-rusthound-ce -d north.sevenkingdoms.local --ldaps -u 'jeor.mormont@north.sevenkingdoms.local' -p '_L0ngCl@w_' -o /tmp/demo -z 
+nonehound -d north.sevenkingdoms.local --ldaps -u 'jeor.mormont@north.sevenkingdoms.local' -p '_L0ngCl@w_' -o /tmp/demo -z 
 # Linux with username:password and ldaps and custom port
-rusthound-ce -d north.sevenkingdoms.local --ldaps -P 3636 -u 'jeor.mormont@north.sevenkingdoms.local' -p '_L0ngCl@w_' -o /tmp/demo -z 
+nonehound -d north.sevenkingdoms.local --ldaps -P 3636 -u 'jeor.mormont@north.sevenkingdoms.local' -p '_L0ngCl@w_' -o /tmp/demo -z 
 
 # Tips to redirect and append both standard output and standard error to a file > /tmp/rh_output 2>&1
-rusthound-ce -d north.sevenkingdoms.local --ldaps -u 'jeor.mormont@north.sevenkingdoms.local' -p '_L0ngCl@w_' -o /tmp/demo --fqdn-resolver > /tmp/rh_output 2>&1
+nonehound -d north.sevenkingdoms.local --ldaps -u 'jeor.mormont@north.sevenkingdoms.local' -p '_L0ngCl@w_' -o /tmp/demo --fqdn-resolver > /tmp/rh_output 2>&1
 
 # Windows with GSSAPI session
-rusthound-ce.exe -d sevenkingdoms.local --ldapfqdn kingslanding
+nonehound.exe -d sevenkingdoms.local --ldapfqdn kingslanding
 # Windows simple bind connection username:password (do not use single or double quotes with cmd.exe)
-rusthound-ce.exe -d sevenkingdoms.local -u jeor.mormont@north.sevenkingdoms.local -p _L0ngCl@w_ -o output -z
+nonehound.exe -d sevenkingdoms.local -u jeor.mormont@north.sevenkingdoms.local -p _L0ngCl@w_ -o output -z
 
 # Kerberos authentication (Linux)
 export KRB5CCNAME="/tmp/jeor.mormont.ccache"
-rusthound-ce -d sevenkingdoms.local -f kingslanding -k -z
+nonehound -d sevenkingdoms.local -f kingslanding -k -z
 # Kerberos authentication (Windows)
-rusthound-ce.exe -d sevenkingdoms.local -f kingslanding -k -z
+nonehound.exe -d sevenkingdoms.local -f kingslanding -k -z
 ```
 
 ## Module FQDN resolver
 
 ```bash
 # Linux with username:password and FQDN resolver module
-rusthound-ce -d essos.local -u 'daenerys.targaryen@essos.local' -p 'BurnThemAll!' -o /tmp/demo --fqdn-resolver -z
+nonehound -d essos.local -u 'daenerys.targaryen@essos.local' -p 'BurnThemAll!' -o /tmp/demo --fqdn-resolver -z
 # Linux with username:password and ldaps and FQDN resolver module and TCP DNS request and custom name server
-rusthound-ce -d essos.local --ldaps -u 'daenerys.targaryen@essos.local' -p 'BurnThemAll!' -o /tmp/demo --fqdn-resolver --tcp-dns --name-server 192.168.56.12 -z
+nonehound -d essos.local --ldaps -u 'daenerys.targaryen@essos.local' -p 'BurnThemAll!' -o /tmp/demo --fqdn-resolver --tcp-dns --name-server 192.168.56.12 -z
 
 # Windows with GSSAPI session and FQDN resolver module
-rusthound-ce.exe -d essos.local -f meereen -o output --fqdn-resolver -z
+nonehound.exe -d essos.local -f meereen -o output --fqdn-resolver -z
 # Windows simple bind connection username:password and FQDN resolver module and TCP DNS request and custom name server (do not use single or double quotes with cmd.exe)
-rusthound-ce.exe -d essos.local -u daenerys.targaryen@essos.local -p BurnThemAll! -o output -z --fqdn-resolver --tcp-dns --name-server 192.168.56.12 
+nonehound.exe -d essos.local -u daenerys.targaryen@essos.local -p BurnThemAll! -o output -z --fqdn-resolver --tcp-dns --name-server 192.168.56.12 
 ```

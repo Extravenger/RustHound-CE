@@ -1,14 +1,14 @@
 <p align="center">
     <picture>
-        <source media="(prefers-color-scheme: dark)" srcset="https://github.com/g0h4n/RustHound-CE/raw/main/img/rusthoundce-transparent-dark-theme.png">
-        <source media="(prefers-color-scheme: light)" srcset="https://github.com/g0h4n/RustHound-CE/raw/main/img/rusthoundce-transparent-light-theme.png">
-        <img src="https://github.com/g0h4n/RustHound-CE/raw/main/img/rusthoundce-transparent-dark-theme.png" alt="rusthound-ce logo" width='250' />
+        <source media="(prefers-color-scheme: dark)" srcset="https://github.com/g0h4n/nonehound/raw/main/img/rusthoundce-transparent-dark-theme.png">
+        <source media="(prefers-color-scheme: light)" srcset="https://github.com/g0h4n/nonehound/raw/main/img/rusthoundce-transparent-light-theme.png">
+        <img src="https://github.com/g0h4n/nonehound/raw/main/img/rusthoundce-transparent-dark-theme.png" alt="nonehound logo" width='250' />
     </picture>
 </p>
 
 <hr />
 
-RustHound-CE is a cross-platform and cross-compiled BloodHound collector tool written in Rust, making it compatible with Linux, Windows, and macOS. It therefore generates all the JSON files that can be analyzed by BloodHound Community Edition. This version is only compatible with [BloodHound Community Edition](https://github.com/SpecterOps/BloodHound). The version compatible with [BloodHound Legacy](https://github.com/BloodHoundAD/BloodHound) can be found on [NeverHack's github](https://github.com/NH-RED-TEAM/RustHound).
+nonehound is a cross-platform and cross-compiled BloodHound collector tool written in Rust, making it compatible with Linux, Windows, and macOS. It therefore generates all the JSON files that can be analyzed by BloodHound Community Edition. This version is only compatible with [BloodHound Community Edition](https://github.com/SpecterOps/BloodHound). The version compatible with [BloodHound Legacy](https://github.com/BloodHoundAD/BloodHound) can be found on [NeverHack's github](https://github.com/NH-RED-TEAM/RustHound).
 
 RustHound was created during my years as a pentester at Armature Technologies, renamed later Opencyber then NeverHack. I would like to thanks NeverHack for giving me time to research and develop the original RustHound project, which is still available on their github. We've decided to continue working together to contribute to both versions. This one will remain compatible with the community edition, and the NeverHack version with the Legacy version of BloodHound.
 
@@ -33,22 +33,22 @@ make windows
 Or using `docker` like below:
 
 ```bash
-docker build --rm -t rusthound-ce .
+docker build --rm -t nonehound .
 
 # Then
-docker run --rm -v $PWD:/usr/src/rusthound-ce rusthound-ce help
-docker run --rm -v $PWD:/usr/src/rusthound-ce rusthound-ce release
-docker run --rm -v $PWD:/usr/src/rusthound-ce rusthound-ce windows
-docker run --rm -v $PWD:/usr/src/rusthound-ce rusthound-ce linux
+docker run --rm -v $PWD:/usr/src/nonehound nonehound help
+docker run --rm -v $PWD:/usr/src/nonehound nonehound release
+docker run --rm -v $PWD:/usr/src/nonehound nonehound windows
+docker run --rm -v $PWD:/usr/src/nonehound nonehound linux
 ```
 
 ## Installation
 
-<img alt="Crates.io Version" src="https://img.shields.io/crates/v/rusthound-ce"> <img alt="Crates.io Total Downloads" src="https://img.shields.io/crates/d/rusthound-ce?color=f74c00">
+<img alt="Crates.io Version" src="https://img.shields.io/crates/v/nonehound"> <img alt="Crates.io Total Downloads" src="https://img.shields.io/crates/d/nonehound?color=f74c00">
 
 ```bash
-# Install and/or update RustHound-CE from cargo command
-cargo install rusthound-ce
+# Install and/or update nonehound from cargo command
+cargo install nonehound
 ```
 
 ## Usage
@@ -56,10 +56,10 @@ cargo install rusthound-ce
 Here's an example of a command to collect domain objects and obtain the zip archive containing the json files to be imported into BloodHound CE:
 
 ```bash
-rusthound-ce -d DOMAIN.LOCAL -u USERNAME@DOMAIN.LOCAL -z
+nonehound -d DOMAIN.LOCAL -u USERNAME@DOMAIN.LOCAL -z
 ```
 
-More information and examples with how to compile RustHound-CE or how to use RustHound-CE can be found directly on the [help page](HELP.md).
+More information and examples with how to compile nonehound or how to use nonehound can be found directly on the [help page](HELP.md).
 
 # Special thanks to 
 

@@ -7,7 +7,7 @@
 
 ### Summary
 
-Merge pull request #[8](https://github.com/g0h4n/RustHound-CE/pull/8) to add a couple more computer node attributes. Thanks [spyr0](https://github.com/spyr0-sec)
+Merge pull request #[8](https://github.com/g0h4n/nonehound/pull/8) to add a couple more computer node attributes. Thanks [spyr0](https://github.com/spyr0-sec)
 
 ## v2.3.3
 
@@ -16,7 +16,7 @@ Merge pull request #[8](https://github.com/g0h4n/RustHound-CE/pull/8) to add a c
 
 ### Summary
 
-Merge pull request #[6](https://github.com/g0h4n/RustHound-CE/pull/6) to add argument `--ldap-filter` to change the ldap-filter to use instead of the default `(objectClass=*)`. Thanks [Mayfly277](https://github.com/Mayfly277)
+Merge pull request #[6](https://github.com/g0h4n/nonehound/pull/6) to add argument `--ldap-filter` to change the ldap-filter to use instead of the default `(objectClass=*)`. Thanks [Mayfly277](https://github.com/Mayfly277)
 
 ## v2.3.2
 
@@ -25,7 +25,7 @@ Merge pull request #[6](https://github.com/g0h4n/RustHound-CE/pull/6) to add arg
 
 ### Summary
 
-The issue where a group had `ActiveDirectoryRights:Self` with a SID mapped to it, theoretically allowing a user to add themselves to the group, has been fixed. Thanks to @shyam0904a for identifying and fixing this issue! https://github.com/g0h4n/RustHound-CE/pull/4
+The issue where a group had `ActiveDirectoryRights:Self` with a SID mapped to it, theoretically allowing a user to add themselves to the group, has been fixed. Thanks to @shyam0904a for identifying and fixing this issue! https://github.com/g0h4n/nonehound/pull/4
 
 ## v2.3.1
 
@@ -58,13 +58,13 @@ RETURN p
 LIMIT 1000
 ```
 
-#### RustHound-CE - v2.3.0
+#### nonehound - v2.3.0
 
 ```bash
-rusthound-ce.exe -c All -d ESSOS.local -u vagrant -p vagrant -z
+nonehound.exe -c All -d ESSOS.local -u vagrant -p vagrant -z
 ```
 
-![rusthound-ce-shortest-path-example](./img/demo/RUSTHOUND_ESSOS_LOCAL_SHORTEST_PATH_EXAMPLE_24122024.png)
+![nonehound-shortest-path-example](./img/demo/RUSTHOUND_ESSOS_LOCAL_SHORTEST_PATH_EXAMPLE_24122024.png)
 
 #### SharpHound - v2.5.9.0
 

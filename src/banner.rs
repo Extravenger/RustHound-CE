@@ -10,7 +10,7 @@ pub fn print_banner() {
 
     println!("{}","---------------------------------------------------".clear().bold());
     println!("Initializing {} at {} on {}",
-        "RustHound-CE".truecolor(247,76,0,),
+        "nonehound".truecolor(247,76,0,),
         return_current_time(),
         return_current_date()
     );
@@ -22,7 +22,7 @@ pub fn print_banner() {
 pub fn print_end_banner() {
 
     println!("\n{} Enumeration Completed at {} on {}! Happy Graphing!\n",
-        "RustHound-CE".truecolor(247,76,0,),
+        "nonehound".truecolor(247,76,0,),
         return_current_time(),
         return_current_date()
     );
