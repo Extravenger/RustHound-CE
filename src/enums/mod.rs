@@ -1,4 +1,4 @@
-//! Utils to extract data from ldap network packets
+
 #[doc(inline)]
 pub use uacflags::*;
 #[doc(inline)]

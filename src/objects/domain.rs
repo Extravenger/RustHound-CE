@@ -25,7 +25,6 @@ use crate::enums::gplink::parse_gplink;
 use crate::enums::secdesc::LdapSid;
 use crate::enums::sid::sid_maker;
 
-/// Domain structure
 #[derive(Debug, Clone, Deserialize, Serialize, Default)]
 pub struct Domain {
     #[serde(rename = "Properties")]
@@ -51,12 +50,11 @@ pub struct Domain {
 }
 
 impl Domain {
-    // New domain.
+
     pub fn new() -> Self { 
         Self { ..Default::default() } 
     }
 
-    // Mutable access.
     pub fn properties_mut(&mut self) -> &mut DomainProperties {
         &mut self.properties
     }
@@ -70,8 +68,7 @@ impl Domain {
         &mut self.trusts
     }
 
-    /// Function to parse and replace value for domain object.
-    /// <https://bloodhound.readthedocs.io/en/latest/further-reading/json.html#domains>
+
     pub fn parse(
         &mut self,
         result: SearchEntry,
@@ -83,30 +80,27 @@ impl Domain {
         let result_attrs: HashMap<String, Vec<String>> = result.attrs;
         let result_bin: HashMap<String, Vec<Vec<u8>>> = result.bin_attrs;
 
-        // Debug for current object
         debug!("Parse domain: {}", result_dn);
-        // Trace all result attributes
+
         for (key, value) in &result_attrs {
             trace!("  {:?}:{:?}", key, value);
         }
-        // Trace all bin result attributes
+
         for (key, value) in &result_bin {
             trace!("  {:?}:{:?}", key, value);
         }
 
-        // Change all values...
         self.properties.domain = domain_name.to_uppercase();
         self.properties.distinguishedname = result_dn;
 
-        // Change all values...
         #[allow(unused_assignments)]
         let mut sid: String = "".to_owned();
         let mut global_domain_sid: String = "DOMAIN_SID".to_owned();
-        // With a check
+
         for (key, value) in &result_attrs {
             match key.as_str() {
                 "distinguishedName" => {
-                    // name & domain & distinguishedname
+
                     self.properties.distinguishedname = value[0].to_owned().to_uppercase();
                     let name = value[0]
                         .split(",")
@@ -133,7 +127,7 @@ impl Domain {
                 "isCriticalSystemObject" => {
                     self.properties.highvalue = value[0].contains("TRUE");
                 }
-                // The number of computer accounts that a user is allowed to create in a domain.
+
                 "ms-DS-MachineAccountQuota" => {
                     let machine_account_quota = value[0].parse::<i32>().unwrap_or(0);
                     self.properties.machineaccountquota = machine_account_quota;
@@ -174,11 +168,11 @@ impl Domain {
                 _ => {}
             }
         }
-        // For all, bins attributes
+
         for (key, value) in &result_bin {
             match key.as_str() {
                 "objectSid" => {
-                    // objectSid raw to string
+
                     sid = sid_maker(LdapSid::parse(&value[0]).unwrap().1, domain_name);
                     self.object_identifier = sid.to_owned();
 
@@ -189,13 +183,12 @@ impl Domain {
                         global_domain_sid = domain_sid[0].to_owned().to_string();
                     }
 
-                    // Data Quality flag
                     self.properties.collected = true;
                 }
                 "nTSecurityDescriptor" => {
-                    // Needed with acl
+
                     let entry_type = "Domain".to_string();
-                    // nTSecurityDescriptor raw to string
+
                     let relations_ace = parse_ntsecuritydescriptor(
                         self,
                         &value[0],
@@ -210,30 +203,27 @@ impl Domain {
             }
         }
 
-        // Push DN and SID in HashMap
         dn_sid.insert(
         self.properties.distinguishedname.to_string(),
         self.object_identifier.to_string()
         );
-        // Push DN and Type
+
         sid_type.insert(
             self.object_identifier.to_string(),
             "Domain".to_string(),
         );
 
-        // Trace and return Domain struct
-        // trace!("JSON OUTPUT: {:?}",serde_json::to_string(&self).unwrap());
+
         Ok(global_domain_sid)
     }
 }
 
 impl LdapObject for Domain {
-    // To JSON
+
     fn to_json(&self) -> Value {
         serde_json::to_value(&self).unwrap()
     }
 
-    // Get values
     fn get_object_identifier(&self) -> &String {
         &self.object_identifier
     }
@@ -261,8 +251,7 @@ impl LdapObject for Domain {
     fn get_haslaps(&self) -> &bool {
         &false
     }
-    
-    // Get mutable values
+
     fn get_aces_mut(&mut self) -> &mut Vec<AceTemplate> {
         &mut self.aces
     }
@@ -272,8 +261,7 @@ impl LdapObject for Domain {
     fn get_allowed_to_delegate_mut(&mut self) -> &mut Vec<Member> {
         panic!("Not used by current object.");
     }
-    
-    // Edit values
+
     fn set_is_acl_protected(&mut self, is_acl_protected: bool) {
         self.is_acl_protected = is_acl_protected;
         self.properties.isaclprotected = is_acl_protected;
@@ -282,10 +270,10 @@ impl LdapObject for Domain {
         self.aces = aces;
     }
     fn set_spntargets(&mut self, _spn_targets: Vec<SPNTarget>) {
-        // Not used by current object.
+
     }
     fn set_allowed_to_delegate(&mut self, _allowed_to_delegate: Vec<Member>) {
-        // Not used by current object.
+
     }
     fn set_links(&mut self, links: Vec<Link>) {
         self.links = links;
@@ -298,7 +286,6 @@ impl LdapObject for Domain {
     }
 }
 
-// Domain properties structure
 #[derive(Debug, Clone, Deserialize, Serialize, Default)]
 pub struct DomainProperties {
     domain: String,
@@ -324,7 +311,7 @@ pub struct DomainProperties {
 }
 
 impl DomainProperties {
-    // Mutable access.
+
     pub fn domain_mut(&mut self) -> &mut String {
        &mut self.domain
     }

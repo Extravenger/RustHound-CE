@@ -1,9 +1,8 @@
 use ldap3::SearchEntry;
 use std::collections::HashMap;
 use std::fmt;
-//use log::trace;
 
-/// Enum to get ldap object type.
+
 pub enum Type {
     User,
     Computer,
@@ -29,7 +28,6 @@ impl fmt::Debug for Type {
     }
 }
 
-/// Get object type, like ("user","group","computer","ou", "container", "gpo", "domain" "trust").
 pub fn get_type(result: SearchEntry) -> std::result::Result<Type, Type> {
     let result_attrs: HashMap<String, Vec<String>> = result.attrs;
 
@@ -100,7 +98,6 @@ pub fn get_type(result: SearchEntry) -> std::result::Result<Type, Type> {
     Err(Type::Unknown)
 }
 
-/// Ldap directory path.
 pub struct DirectoryPaths;
 
 impl DirectoryPaths {

@@ -21,7 +21,6 @@ use crate::objects::{
 };
 pub mod common;
 
-/// This function will create json output and zip output
 pub fn make_result(
    common_args:            &Options,
    vec_users:              Vec<User>,
@@ -38,16 +37,13 @@ pub fn make_result(
    vec_certtemplates:      Vec<CertTemplate>,
    vec_issuancepolicies:   Vec<IssuancePolicie>,
 ) -> Result<(), Box<dyn Error>> {
-   // Format domain name
+
    let filename = common_args.domain.replace(".", "-").to_lowercase();
 
-   // Hashmap for json files
    let mut json_result: HashMap<String, String> = HashMap::new();
 
-   // Datetime for output file
    let datetime = return_current_fulldate();
 
-   // Add all in json files
    common::add_file(
       &datetime,
       "users".to_string(),
@@ -96,7 +92,7 @@ pub fn make_result(
       &mut json_result,
       common_args,
    )?;
-   // }
+
    common::add_file(
       &datetime,
       "containers".to_string(),
@@ -153,7 +149,7 @@ pub fn make_result(
       &mut json_result,
       common_args,
    )?;
-   // All in zip file
+
    if common_args.zip {
       common::make_a_zip(
          &datetime,

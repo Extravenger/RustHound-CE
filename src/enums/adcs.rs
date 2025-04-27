@@ -29,21 +29,20 @@ bitflags! {
     }
 }
 
-/// Get the PKI flags from "msPKI-Certificate-Name-Flag" LDAP attribut.
-/// MS: <https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-crtd/1192823c-d839-4bc3-9b6b-fa8c53507ae1>
+
 pub fn get_pki_cert_name_flags(value: u64) -> String
 {
     let mut flags: Vec<String> = Vec::new();
 
     if (PkiCertificateNameFlag::NONE.bits() | value) == value
     {
-        //nothing
+
     }
     if (PkiCertificateNameFlag::ENROLLEE_SUPPLIES_SUBJECT.bits() | value) == value
     {
         flags.push("ENROLLEE_SUPPLIES_SUBJECT".to_string());
-        // template.enrollee_supplies_subject = true;
-        // template_json["Properties"]["Enrollee Supplies Subject"] = template.enrollee_supplies_subject.to_owned().into();
+
+
     }
     if (PkiCertificateNameFlag::ADD_EMAIL.bits() | value) == value
     {
@@ -135,15 +134,14 @@ bitflags! {
     }
 }
 
-/// Get the PKI flags from "msPKI-Enrollment-Flag" LDAP attribut.
-/// MS: <https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-crtd/ec71fd43-61c2-407b-83c9-b52272dec8a1>
+
 pub fn get_pki_enrollment_flags(value: u64) -> String
 {
     let mut flags: Vec<String> = Vec::new();
 
     if (PkiEnrollmentFlag::NONE.bits() | value) == value
     {
-        //nothing
+
     }
     if (PkiEnrollmentFlag::INCLUDE_SYMMETRIC_ALGORITHMS.bits() | value) == value
     {
@@ -152,8 +150,8 @@ pub fn get_pki_enrollment_flags(value: u64) -> String
     if (PkiEnrollmentFlag::PEND_ALL_REQUESTS.bits() | value) == value
     {
         flags.push("PEND_ALL_REQUESTS".to_string());
-        // template.requires_manager_approval = true;
-        // template_json["Properties"]["Requires Manager Approval"] = template.requires_manager_approval.to_owned().into();
+
+
     }
     if (PkiEnrollmentFlag::PUBLISH_TO_KRA_CONTAINER.bits() | value) == value
     {
@@ -226,7 +224,7 @@ pub fn get_pki_enrollment_flags(value: u64) -> String
     if (PkiEnrollmentFlag::NO_SECURITY_EXTENSION.bits() | value) == value
     {
         flags.push("NO_SECURITY_EXTENSION".to_string());
-        // template.no_security_extension = true;
+
     }
     return flags.join(", ")
 }
@@ -250,8 +248,7 @@ bitflags! {
     }
 }
 
-/// Get the PKI flags from "msPKI-Private-Key-Flag" LDAP attribut.
-/// MS: <https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-crtd/f6122d87-b999-4b92-bff8-f465e8949667>
+
 pub fn get_pki_private_flags(value: u64) -> String
 {
     let mut flags: Vec<String> = Vec::new();
@@ -259,8 +256,8 @@ pub fn get_pki_private_flags(value: u64) -> String
     if (PkiPrivateKeyFlag::REQUIRE_PRIVATE_KEY_ARCHIVAL.bits() | value) == value
     {
         flags.push("REQUIRE_PRIVATE_KEY_ARCHIVAL".to_string());
-        // template.requires_key_archival = true;
-        // template_json["Properties"]["Requires Key Archival"] = template.requires_key_archival.to_owned().into();
+
+
     }
     if (PkiPrivateKeyFlag::EXPORTABLE_KEY.bits() | value) == value
     {
@@ -317,7 +314,6 @@ pub fn get_pki_private_flags(value: u64) -> String
     return flags.join(", ")
 }
 
-/// Function to replace displayname by SID in enabled cert templates.
 pub fn templates_enabled_change_displayname_to_sid(
     vec_certtemplates: &mut Vec<CertTemplate>,
     vec_enterprisecas: &mut Vec<EnterpriseCA>,
@@ -329,14 +325,14 @@ pub fn templates_enabled_change_displayname_to_sid(
             certtemplate.object_identifier().to_owned(),
          );
     }
-    // println!("{:?}",&name_sid);
+
 
     for enterprise_ca in vec_enterprisecas {
         let templates = enterprise_ca.enabled_cert_templates();
         let mut enabled_cert_templates: Vec<Member> = Vec::new();
         for template in templates {
             let mut member = Member::new();
-            // println!("{:?}",&template.object_identifier());
+
             if let Some(value) = name_sid.keys()
             .find(|&key| key.contains(&template.object_identifier().to_uppercase()))
             .and_then(|key| name_sid.get(key))
@@ -346,7 +342,7 @@ pub fn templates_enabled_change_displayname_to_sid(
                 enabled_cert_templates.push(member);
             }
         }
-        // Fixe values in enterprise CA
+
         *enterprise_ca.enabled_cert_templates_mut() = enabled_cert_templates;
     }
     Ok(())

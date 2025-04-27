@@ -1,16 +1,15 @@
-//! Run a LDAP enumeration and parse results
-//!
-//! This module will prepare your connection and request the LDAP server to retrieve all the information needed to create the json files.
-//!
-//! rusthound sends only one request to the LDAP server, if the result of this one is higher than the limit of the LDAP server limit it will be split in several requests to avoid having an error 4 (LDAP_SIZELIMIT_EXCEED).
-//!
-//! Example in rust
-//!
-//! ```
-//! let search = ldap_search(...)
-//! ```
 
-// use crate::errors::Result;
+
+
+
+
+
+
+
+
+
+
+
 use crate::banner::progress_bar;
 use crate::utils::format::domain_to_dc;
 
@@ -25,7 +24,6 @@ use std::process;
 use std::io::{self, Write, stdin};
 use log::{info, debug, error, trace};
 
-/// Function to request all AD values.
 pub async fn ldap_search(
     ldaps: bool,
     ip: &Option<String>,
@@ -37,10 +35,9 @@ pub async fn ldap_search(
     kerberos: bool,
     ldapfilter: &String,
 ) -> Result<Vec<SearchEntry>, Box<dyn Error>> {
-    // Construct LDAP args
+
     let ldap_args = ldap_constructor(ldaps, ip, port, domain, ldapfqdn, username, password, kerberos)?;
 
-    // LDAP connection
     let consettings = LdapConnSettings::new().set_no_tls_verify(true);
     let (conn, mut ldap) = LdapConnAsync::with_settings(consettings, &ldap_args.s_url).await?;
     ldap3::drive!(conn);
@@ -75,10 +72,8 @@ pub async fn ldap_search(
         }
     }
 
-    // Prepare LDAP result vector
     let mut rs: Vec<SearchEntry> = Vec::new();
 
-    // Request all namingContexts for current DC
     let res = match get_all_naming_contexts(&mut ldap).await {
         Ok(res) => {
             trace!("naming_contexts: {:?}",&res);
@@ -90,58 +85,53 @@ pub async fn ldap_search(
         }
     };
 
-    // namingContexts: DC=domain,DC=local
-    // namingContexts: CN=Configuration,DC=domain,DC=local (needed for AD CS datas)
+
     if res.iter().any(|s| s.contains("Configuration")) {
         for cn in &res {
-            // Set control LDAP_SERVER_SD_FLAGS_OID to get nTSecurityDescriptor
-            // https://ldapwiki.com/wiki/LDAP_SERVER_SD_FLAGS_OID
+
+
             let ctrls = RawControl {
                 ctype: String::from("1.2.840.113556.1.4.801"),
                 crit: true,
                 val: Some(vec![48,3,2,1,5]),
             };
             ldap.with_controls(ctrls.to_owned());
-    
-            // Prepare filter
-            // let mut _s_filter: &str = "";
-            // if cn.contains("Configuration") {
-            //     _s_filter = "(|(objectclass=pKIEnrollmentService)(objectclass=pkicertificatetemplate)(objectclass=subschema)(objectclass=certificationAuthority)(objectclass=container))";
-            // } else {
-            //     _s_filter = "(objectClass=*)";
-            // }
-            //let _s_filter = "(objectClass=*)";
-            //let _s_filter = "(objectGuid=*)";
+
+
+
+
+
+
+
+
+
             info!("Ldap filter : {}", ldapfilter.bold().green());
             let _s_filter = ldapfilter;
-    
-            // Every 999 max value in ldap response (err 4 ldap)
+
             let adapters: Vec<Box<dyn Adapter<_,_>>> = vec![
                 Box::new(EntriesOnly::new()),
                 Box::new(PagedResults::new(999)),
             ];
-    
-            // Streaming search with adaptaters and filters
+
             let mut search = ldap.streaming_search_with(
                 adapters, // Adapter which fetches Search results with a Paged Results control.
                 cn, 
                 Scope::Subtree,
                 _s_filter,
                 vec!["*", "nTSecurityDescriptor"], 
-                // Without the presence of this control, the server returns an SD only when the SD attribute name is explicitly mentioned in the requested attribute list.
-                // https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-adts/932a7a8d-8c93-4448-8093-c79b7d9ba499
+
+
             ).await?;
-    
-            // Wait and get next values
+
             let pb = ProgressBar::new(1);
             let mut count = 0;	
             while let Some(entry) = search.next().await? {
                 let entry = SearchEntry::construct(entry);
-                //trace!("{:?}", &entry);
-                // Manage progress bar
+
+
                 count += 1;
                 progress_bar(pb.to_owned(),"LDAP objects retrieved".to_string(),count,"#".to_string());	
-                // Push all result in rs vec()
+
                 rs.push(entry);
             }
             pb.finish_and_clear();
@@ -154,20 +144,17 @@ pub async fn ldap_search(
                 }
             }
         }
-        // If no result exit program
+
         if rs.len() <= 0 {
             process::exit(0x0100);
         }
-    
-        // Terminate the connection to the server
+
         ldap.unbind().await?;
     }
-    
-    // Return the vector with the result
+
     return Ok(rs);
 }
 
-/// Structure containing the LDAP connection arguments.
 struct LdapArgs {
     s_url: String,
     _s_dc: Vec<String>,
@@ -176,7 +163,6 @@ struct LdapArgs {
     s_password: String,
 }
 
-/// Function to prepare LDAP arguments.
 fn ldap_constructor(
     ldaps: bool,
     ip: &Option<String>,
@@ -187,13 +173,11 @@ fn ldap_constructor(
     password: &String,
     kerberos: bool,
 ) -> Result<LdapArgs, Box<dyn Error>>  {
-    // Prepare ldap url
+
     let s_url = prepare_ldap_url(ldaps, ip, port, domain);
 
-    // Prepare full DC chain
     let s_dc = prepare_ldap_dc(domain);
 
-    // Username prompt
     let mut s= String::new();
     let mut _s_username: String;
     if username.contains("not set") && !kerberos {
@@ -212,7 +196,6 @@ fn ldap_constructor(
         _s_username = username.to_owned();
     }
 
-    // Format username and email
     let mut s_email: String = "".to_owned();
     if !_s_username.contains("@") {
         s_email.push_str(&_s_username.to_string());
@@ -223,11 +206,10 @@ fn ldap_constructor(
         s_email = _s_username.to_string().to_lowercase();
     }
 
-    // Password prompt
     let mut _s_password: String = String::new();
     if !_s_username.contains("not set") && !kerberos {
         if password.contains("not set") {
-            // Prompt for user password
+
             let rpass: String = rpassword::prompt_password("Password: ").unwrap_or("not set".to_string());
             _s_password = rpass;
         } else {
@@ -237,7 +219,6 @@ fn ldap_constructor(
         _s_password = password.to_owned();
     }
 
-    // Print infos if verbose mod is set
     debug!("IP: {}", match ip {
         Some(ip) => ip.to_owned(),
         None => "not set".to_owned()
@@ -266,7 +247,6 @@ fn ldap_constructor(
     })
 }
 
-/// Function to prepare LDAP url.
 fn prepare_ldap_url(ldaps: bool, ip: &Option<String>, port: &Option<u16>, domain: &String) -> String {
     let protocol = if ldaps || port.unwrap_or(0) == 636 {
         "ldaps"
@@ -289,13 +269,11 @@ fn prepare_ldap_url(ldaps: bool, ip: &Option<String>, port: &Option<u16>, domain
     }
 }
 
-/// Function to prepare LDAP DC from DOMAIN.LOCAL
 pub fn prepare_ldap_dc(domain: &String) -> Vec<String> {
 
     let mut dc: String = "".to_owned();
     let mut naming_context: Vec<String> = Vec::new();
 
-    // Format DC
     if !domain.contains(".") {
         dc.push_str("DC=");
         dc.push_str(&domain);
@@ -306,13 +284,11 @@ pub fn prepare_ldap_dc(domain: &String) -> Vec<String> {
         naming_context.push(domain_to_dc(domain));
     }
 
-    // For ADCS values
     naming_context.push(format!("{}{}","CN=Configuration,",dc[..].to_string())); 
 
     return naming_context
 }
 
-/// Function to make GSSAPI ldap connection.
 #[cfg(not(feature = "nogssapi"))]
 async fn gssapi_connection(
     ldap: &mut ldap3::Ldap,
@@ -333,17 +309,15 @@ async fn gssapi_connection(
     Ok(())
 }
 
-/// (Not needed yet) Get all namingContext for DC
 pub async fn get_all_naming_contexts(
     ldap: &mut ldap3::Ldap
 ) -> Result<Vec<String>, Box<dyn Error>> {
-    // Every 999 max value in ldap response (err 4 ldap)
+
     let adapters: Vec<Box<dyn Adapter<_,_>>> = vec![
         Box::new(EntriesOnly::new()),
         Box::new(PagedResults::new(999)),
     ];
 
-    // First LDAP request to get all namingContext
     let mut search = ldap.streaming_search_with(
         adapters,
         "", 
@@ -352,7 +326,6 @@ pub async fn get_all_naming_contexts(
         vec!["namingContexts"],
     ).await?;
 
-    // Prepare LDAP result vector
     let mut rs: Vec<SearchEntry> = Vec::new();
     while let Some(entry) = search.next().await? {
         let entry = SearchEntry::construct(entry);
@@ -360,7 +333,6 @@ pub async fn get_all_naming_contexts(
     }
     let res = search.finish().await.success();
 
-    // Prepare vector for all namingContexts result
     let mut naming_contexts: Vec<String> = Vec::new();
     match res {
         Ok(_res) => {
@@ -381,6 +353,6 @@ pub async fn get_all_naming_contexts(
             error!("No namingContexts found! Reason: {err}");
         }
     }
-    // Empty result if no namingContexts found
+
     Ok(Vec::new())
 }

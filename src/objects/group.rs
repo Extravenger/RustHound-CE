@@ -20,7 +20,6 @@ use crate::enums::secdesc::LdapSid;
 use crate::enums::sid::{objectsid_to_vec8, sid_maker};
 use crate::utils::date::string_to_epoch;
 
-/// Group structure
 #[derive(Debug, Clone, Deserialize, Serialize, Default)]
 pub struct Group {
     #[serde(rename = "ObjectIdentifier")]
@@ -40,17 +39,15 @@ pub struct Group {
 }
 
 impl Group {
-    // New group.
+
     pub fn new() -> Self { 
         Self { ..Default::default() } 
     }
 
-    // Immutable access.
     pub fn members(&self) -> &Vec<Member> {
         &self.members
     }
 
-    // Mutable access.
     pub fn properties_mut(&mut self) -> &mut GroupProperties {
         &mut self.properties
     }
@@ -61,8 +58,7 @@ impl Group {
         &mut self.members
     }
 
-    /// Function to parse and replace value for group object.
-    /// <https://bloodhound.readthedocs.io/en/latest/further-reading/json.html#groups>
+
     pub fn parse(
         &mut self,
         result: SearchEntry,
@@ -76,25 +72,22 @@ impl Group {
         let result_bin: HashMap<String, Vec<Vec<u8>>> = result.bin_attrs;
         
         debug!("Parse group: {}", result_dn);
-        // Trace all result attributes
+
         for (key, value) in &result_attrs {
             trace!("  {:?}:{:?}", key, value);
         }
-        // Trace all bin result attributes
+
         for (key, value) in &result_bin {
             trace!("  {:?}:{:?}", key, value);
         }
-        
-        // Some needed vectors.
+
         let mut vec_members: Vec<Member> = Vec::new();
         let mut member_template = Member::new();
-        
-        // Change all values...
+
         self.properties.domain = domain.to_uppercase();
         self.properties.distinguishedname = result_dn;
         self.properties.domainsid = domain_sid.to_string();
-        
-        // With a check
+
         for (key, value) in &result_attrs {
             match key.as_str() {
                 "name" => {
@@ -128,7 +121,7 @@ impl Group {
                     }
                 }
                 "objectSid" => {
-                    // objectSid to vec and raw to string
+
                     let vec_sid = objectsid_to_vec8(&value[0]);
                     let sid = sid_maker(LdapSid::parse(&vec_sid).unwrap().1, domain);
                     self.object_identifier = sid.to_owned();
@@ -138,8 +131,7 @@ impl Group {
                     {
                         group_json["Properties"]["domainsid"] = domain_sid[0].to_owned().to_string().into();
                     }*/
-        
-                    // highvalue
+
                     if sid.ends_with("-512") 
                     || sid.ends_with("-516") 
                     || sid.ends_with("-519") 
@@ -171,12 +163,11 @@ impl Group {
                 _ => {}
             }
         }
-        
-        // For all, bins attributs
+
         for (key, value) in &result_bin {
             match key.as_str() {
                 "objectSid" => {
-                    // objectSid raw to string
+
                     let sid = sid_maker(LdapSid::parse(&value[0]).unwrap().1, domain);
                     self.object_identifier = sid.to_owned();
         
@@ -185,8 +176,7 @@ impl Group {
                     {
                         self.properties.domainsid = domain_sid[0].to_owned().to_string();
                     }
-                    
-                    // highvalue
+
                     if sid.ends_with("-512") 
                     || sid.ends_with("-516") 
                     || sid.ends_with("-519") 
@@ -207,9 +197,9 @@ impl Group {
                     }
                 }
                 "nTSecurityDescriptor" => {
-                    // Needed with acl
+
                     let entry_type = "Group".to_string();
-                    // nTSecurityDescriptor raw to string
+
                     let relations_ace = parse_ntsecuritydescriptor(
                         self,
                         &value[0],
@@ -223,31 +213,28 @@ impl Group {
                 _ => {}
             }
         }
-        
-        // Push DN and SID in HashMap
+
         dn_sid.insert(
             self.properties.distinguishedname.to_string(),
             self.object_identifier.to_string(),
         );
-        // Push DN and Type
+
         sid_type.insert(
             self.object_identifier.to_string(),
             "Group".to_string(),
         );
-        
-        // Trace and return Group struct
-        // trace!("JSON OUTPUT: {:?}",serde_json::to_string(&self).unwrap());
+
+
         Ok(())
     }
 }
 
 impl LdapObject for Group {
-    // To JSON
+
     fn to_json(&self) -> Value {
         serde_json::to_value(&self).unwrap()
     }
 
-    // Get values
     fn get_object_identifier(&self) -> &String {
         &self.object_identifier
     }
@@ -275,8 +262,7 @@ impl LdapObject for Group {
     fn get_haslaps(&self) -> &bool {
         &false
     }
-    
-    // Get mutable values
+
     fn get_aces_mut(&mut self) -> &mut Vec<AceTemplate> {
         &mut self.aces
     }
@@ -286,8 +272,7 @@ impl LdapObject for Group {
     fn get_allowed_to_delegate_mut(&mut self) -> &mut Vec<Member> {
         panic!("Not used by current object.");
     }
-    
-    // Edit values
+
     fn set_is_acl_protected(&mut self, is_acl_protected: bool) {
         self.is_acl_protected = is_acl_protected;
         self.properties.isaclprotected = is_acl_protected;
@@ -296,23 +281,22 @@ impl LdapObject for Group {
         self.aces = aces;
     }
     fn set_spntargets(&mut self, _spn_targets: Vec<SPNTarget>) {
-        // Not used by current object.
+
     }
     fn set_allowed_to_delegate(&mut self, _allowed_to_delegate: Vec<Member>) {
-        // Not used by current object.
+
     }
     fn set_links(&mut self, _links: Vec<Link>) {
-        // Not used by current object.
+
     }
     fn set_contained_by(&mut self, contained_by: Option<Member>) {
         self.contained_by = contained_by;
     }
     fn set_child_objects(&mut self, _child_objects: Vec<Member>) {
-        // Not used by current object.
+
     }
 }
 
-// Group properties structure
 #[derive(Debug, Clone, Deserialize, Serialize, Default)]
 pub struct GroupProperties {
     domain: String,
@@ -328,7 +312,7 @@ pub struct GroupProperties {
 }
 
 impl GroupProperties {
-   // Mutable access.
+
    pub fn name_mut(&mut self) -> &mut String {
       &mut self.name
    }

@@ -19,7 +19,6 @@ use log::{debug, error, trace};
 use std::collections::HashMap;
 use std::error::Error;
 
-/// AIACA structure
 #[derive(Debug, Clone, Deserialize, Serialize, Default)]
 pub struct AIACA {
     #[serde(rename = "Properties")]
@@ -39,12 +38,11 @@ pub struct AIACA {
 }
 
 impl AIACA {
-    // New AIACA
+
     pub fn new() -> Self { 
         Self { ..Default::default() } 
     }
 
-    /// Function to parse and replace value in json template for AIACA object.
     pub fn parse(
         &mut self,
         result: SearchEntry,
@@ -57,24 +55,21 @@ impl AIACA {
         let result_attrs: HashMap<String, Vec<String>> = result.attrs;
         let result_bin: HashMap<String, Vec<Vec<u8>>> = result.bin_attrs;
 
-        // Debug for current object
         debug!("Parse AIACA: {}", result_dn);
-        // Trace all result attributes
+
         for (key, value) in &result_attrs {
             trace!("  {:?}:{:?}", key, value);
         }
-        // Trace all bin result attributes
+
         for (key, value) in &result_bin {
             trace!("  {:?}:{:?}", key, value);
         }
 
-        // Change all values...
         self.properties.domain = domain.to_uppercase();
         self.properties.distinguishedname = result_dn;    
         self.properties.domainsid = domain_sid.to_string();
         self.domain_sid = domain_sid.to_string();
 
-        // With a check
         for (key, value) in &result_attrs {
             match key.as_str() {
                 "name" => {
@@ -95,24 +90,23 @@ impl AIACA {
                 }
                 "crossCertificatePair" => {
                     self.properties.hascrosscertificatepair = true;
-                    // self.properties.crosscertificatepair = value[0].to_owned();
+
                 }
                 _ => {}
             }
         }
 
-        // For all, bins attributs
         for (key, value) in &result_bin {
             match key.as_str() {
                 "objectGUID" => {
-                    // objectGUID raw to string
+
                     let guid = decode_guid_le(&value[0]);
                     self.object_identifier = guid.to_owned().into();
                 }
                 "nTSecurityDescriptor" => {
-                    // Needed with acl
+
                     let entry_type = "AIACA".to_string();
-                    // nTSecurityDescriptor raw to string
+
                     let relations_ace = parse_ntsecuritydescriptor(
                         self,
                         &value[0],
@@ -124,26 +118,25 @@ impl AIACA {
                     self.aces = relations_ace;
                 }
                 "cACertificate" => {
-                    //info!("{:?}:{:?}", key,value[0].to_owned());
+
                     let certsha1: String = calculate_sha1(&value[0]);
                     self.properties.certthumbprint = certsha1.to_owned();
                     self.properties.certname = certsha1.to_owned();
                     self.properties.certchain = vec![certsha1.to_owned()];
 
-                    // Parsing certificate.
                     let res = X509Certificate::from_der(&value[0]);
                     match res {
                         Ok((_rem, cert)) => {
-                            // println!("Basic Constraints Extensions:");
+
                             for ext in cert.extensions() {
-                                // println!("{:?} : {:?}",&ext.oid, ext);
+
                                 if &ext.oid == &oid!(2.5.29.19) {
-                                    // <https://docs.rs/x509-parser/latest/x509_parser/extensions/struct.BasicConstraints.html>
+
                                     if let ParsedExtension::BasicConstraints(basic_constraints) = &ext.parsed_extension() {
                                         let _ca = &basic_constraints.ca;
                                         let _path_len_constraint = &basic_constraints.path_len_constraint;
-                                        // println!("ca: {:?}", _ca);
-                                        // println!("path_len_constraint: {:?}", _path_len_constraint);
+
+
                                         match _path_len_constraint {
                                             Some(_path_len_constraint) => {
                                                 if _path_len_constraint > &0 {
@@ -171,32 +164,29 @@ impl AIACA {
             }
         }
 
-        // Push DN and SID in HashMap
         if self.object_identifier.to_string() != "SID" {
             dn_sid.insert(
                 self.properties.distinguishedname.to_owned(),
                 self.object_identifier.to_owned()
             );
-            // Push DN and Type
+
             sid_type.insert(
                 self.object_identifier.to_owned(),
                 "AIACA".to_string()
             );
         }
 
-        // Trace and return AIACA struct
-        // trace!("JSON OUTPUT: {:?}",serde_json::to_string(&self).unwrap());
+
         Ok(())
     }
 }
 
 impl LdapObject for AIACA {
-    // To JSON
+
     fn to_json(&self) -> Value {
         serde_json::to_value(&self).unwrap()
     }
 
-    // Get values
     fn get_object_identifier(&self) -> &String {
         &self.object_identifier
     }
@@ -224,8 +214,7 @@ impl LdapObject for AIACA {
     fn get_haslaps(&self) -> &bool {
         &false
     }
-    
-    // Get mutable values
+
     fn get_aces_mut(&mut self) -> &mut Vec<AceTemplate> {
         &mut self.aces
     }
@@ -235,8 +224,7 @@ impl LdapObject for AIACA {
     fn get_allowed_to_delegate_mut(&mut self) -> &mut Vec<Member> {
         panic!("Not used by current object.");
     }
-    
-    // Edit values
+
     fn set_is_acl_protected(&mut self, is_acl_protected: bool) {
         self.is_acl_protected = is_acl_protected;
         self.properties.isaclprotected = is_acl_protected;
@@ -245,24 +233,22 @@ impl LdapObject for AIACA {
         self.aces = aces;
     }
     fn set_spntargets(&mut self, _spn_targets: Vec<SPNTarget>) {
-        // Not used by current object.
+
     }
     fn set_allowed_to_delegate(&mut self, _allowed_to_delegate: Vec<Member>) {
-        // Not used by current object.
+
     }
     fn set_links(&mut self, _links: Vec<Link>) {
-        // Not used by current object.
+
     }
     fn set_contained_by(&mut self, contained_by: Option<Member>) {
         self.contained_by = contained_by;
     }
     fn set_child_objects(&mut self, _child_objects: Vec<Member>) {
-        // Not used by current object.
+
     }
 }
 
-
-// AIACA properties structure
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct AIACAProperties {
    domain: String,

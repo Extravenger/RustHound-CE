@@ -16,7 +16,6 @@ use log::{debug, trace};
 use std::collections::HashMap;
 use std::error::Error;
 
-/// IssuancePolicie structure
 #[derive(Debug, Clone, Deserialize, Serialize, Default)]
 pub struct IssuancePolicie {
     #[serde(rename = "Properties")]
@@ -36,14 +35,13 @@ pub struct IssuancePolicie {
 }
 
 impl IssuancePolicie {
-    // New IssuancePolicie
+
     pub fn new() -> Self { 
         Self {
             ..Default::default() 
         } 
     }
 
-    /// Function to parse and replace value in json template for IssuancePolicie object.
     pub fn parse(
          &mut self,
         result: SearchEntry,
@@ -56,23 +54,20 @@ impl IssuancePolicie {
         let result_attrs: HashMap<String, Vec<String>> = result.attrs;
         let result_bin: HashMap<String, Vec<Vec<u8>>> = result.bin_attrs;
 
-        // Debug for current object
         debug!("Parse IssuancePolicie: {}", result_dn);
-        // Trace all result attributes
+
         for (key, value) in &result_attrs {
             trace!("  {:?}:{:?}", key, value);
         }
-        // Trace all bin result attributes
+
         for (key, value) in &result_bin {
             trace!("  {:?}:{:?}", key, value);
         }
 
-        // Change all values...
         self.properties.domain = domain.to_uppercase();
         self.properties.distinguishedname = result_dn;    
         self.properties.domainsid = domain_sid.to_string();
 
-        // With a check
         for (key, value) in &result_attrs {
             match key.as_str() {
                 "description" => {
@@ -98,18 +93,17 @@ impl IssuancePolicie {
             }
         }
 
-        // For all, bins attributs
         for (key, value) in &result_bin {
             match key.as_str() {
                 "objectGUID" => {
-                    // objectGUID raw to string
+
                     let guid = decode_guid_le(&value[0]);
                     self.object_identifier = guid.to_owned().into();
                 }
                 "nTSecurityDescriptor" => {
-                    // Needed with acl
+
                     let entry_type = "IssuancePolicie".to_string();
-                    // nTSecurityDescriptor raw to string
+
                     let relations_ace = parse_ntsecuritydescriptor(
                         self,
                          &value[0],
@@ -124,32 +118,29 @@ impl IssuancePolicie {
             }
         }
 
-        // Push DN and SID in HashMap
         if self.object_identifier.to_string() != "SID" {
             dn_sid.insert(
                 self.properties.distinguishedname.to_owned(),
                 self.object_identifier.to_owned()
             );
-            // Push DN and Type
+
             sid_type.insert(
                 self.object_identifier.to_owned(),
                 "IssuancePolicie".to_string()
             );
         }
 
-        // Trace and return IssuancePolicie struct
-        // trace!("JSON OUTPUT: {:?}",serde_json::to_string(&self).unwrap());
+
         Ok(())
     }
 }
 
 impl LdapObject for IssuancePolicie {
-    // To JSON
+
     fn to_json(&self) -> Value {
         serde_json::to_value(&self).unwrap()
     }
 
-    // Get values
     fn get_object_identifier(&self) -> &String {
          &self.object_identifier
     }
@@ -177,8 +168,7 @@ impl LdapObject for IssuancePolicie {
     fn get_haslaps(&self) -> &bool {
          &false
     }
-    
-    // Get mutable values
+
     fn get_aces_mut(&mut self) -> &mut Vec<AceTemplate> {
          &mut self.aces
     }
@@ -188,8 +178,7 @@ impl LdapObject for IssuancePolicie {
     fn get_allowed_to_delegate_mut(&mut self) -> &mut Vec<Member> {
         panic!("Not used by current object.");
     }
-    
-    // Edit values
+
     fn set_is_acl_protected(&mut self, is_acl_protected: bool) {
         self.is_acl_protected = is_acl_protected;
         self.properties.isaclprotected = is_acl_protected;
@@ -198,24 +187,22 @@ impl LdapObject for IssuancePolicie {
         self.aces = aces;
     }
     fn set_spntargets(&mut self, _spn_targets: Vec<SPNTarget>) {
-        // Not used by current object.
+
     }
     fn set_allowed_to_delegate(&mut self, _allowed_to_delegate: Vec<Member>) {
-        // Not used by current object.
+
     }
     fn set_links(&mut self, _links: Vec<Link>) {
-        // Not used by current object.
+
     }
     fn set_contained_by(&mut self, contained_by: Option<Member>) {
         self.contained_by = contained_by;
     }
     fn set_child_objects(&mut self, _child_objects: Vec<Member>) {
-        // Not used by current object.
+
     }
 }
 
-
-// IssuancePolicie properties structure
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct IssuancePolicieProperties {
     domain: String,
@@ -244,7 +231,7 @@ impl Default for IssuancePolicieProperties {
         }
     }
 }
-/// GroupLink structure
+
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct GroupLink {
     #[serde(rename = "ObjectIdentifier")]
@@ -254,18 +241,16 @@ pub struct GroupLink {
 }
 
 impl GroupLink {
-    // New object.
+
     pub fn new(object_identifier: Option<String>, object_type: String) -> Self { Self { object_identifier, object_type } }
 
-    // Immutable access.
     pub fn object_identifier(&self) -> &Option<String> {
         &self.object_identifier
     }
     pub fn object_type(&self) -> &String {
         &self.object_type
     }
- 
-    // Mutable access.
+
     pub fn object_identifier_mut(&mut self) -> &mut Option<String> {
         &mut self.object_identifier
     }
@@ -274,7 +259,6 @@ impl GroupLink {
     }
 }
 
-// Implement Default trait for GroupLink
 impl Default for GroupLink {
     fn default() -> Self {
         Self {

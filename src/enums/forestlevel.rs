@@ -1,4 +1,4 @@
-/// Get the forest level from "msDS-Behavior-Version" LDAP attribute.
+
 pub fn get_forest_level(level: String) -> String
 {
     match level.as_str() {

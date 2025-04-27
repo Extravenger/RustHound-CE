@@ -44,29 +44,24 @@ use objects::{
     inssuancepolicie::IssuancePolicie,
 };
 
-/// Main of RustHound
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
-    // Banner
+
     print_banner();
 
-    // Get args
     #[cfg(not(feature = "noargs"))]
     let common_args: Options = extract_args();
     #[cfg(feature = "noargs")]
     let common_args = auto_args();
 
-    // Build logger
     Builder::new()
         .filter(Some("rusthound"), common_args.verbose)
         .filter_level(log::LevelFilter::Error)
         .init();
 
-    // Get verbose level
     info!("Verbosity level: {:?}", common_args.verbose);
     info!("Collection method: {:?}", common_args.collection_method);
 
-    // LDAP request to get all informations in result
     let result = ldap_search(
         common_args.ldaps,
         &common_args.ip,
@@ -79,7 +74,6 @@ async fn main() -> Result<(), Box<dyn Error>> {
         &common_args.ldap_filter
     ).await?;
 
-    // Vector for content all
     let mut vec_users:              Vec<User>            = Vec::new();
     let mut vec_groups:             Vec<Group>           = Vec::new();
     let mut vec_computers:          Vec<Computer>        = Vec::new();
@@ -96,17 +90,15 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let mut vec_certtemplates:      Vec<CertTemplate>    = Vec::new();
     let mut vec_issuancepolicies:   Vec<IssuancePolicie> = Vec::new();
 
-    // Hashmap to link DN to SID
     let mut dn_sid: HashMap<String, String> = HashMap::new();
-    // Hashmap to link DN to Type
+
     let mut sid_type: HashMap<String, String> = HashMap::new();
-    // Hashmap to link FQDN to SID
+
     let mut fqdn_sid: HashMap<String, String> = HashMap::new();
-    // Hashmap to link fqdn to an ip address
+
     let mut fqdn_ip: HashMap<String, String> = HashMap::new();
 
-    // Analyze object by object 
-    // Get type and parse it to get values
+
     parse_result_type(
         &common_args,
         result,
@@ -130,8 +122,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
         &mut fqdn_sid,
         &mut fqdn_ip,
     )?;
-    
-    // Functions to replace and add missing values
+
     check_all_result(
         &common_args,
         &mut vec_users,
@@ -155,14 +146,12 @@ async fn main() -> Result<(), Box<dyn Error>> {
         &mut fqdn_ip,
     )?;
 
-    // Running modules
     run_modules(
         &common_args,
         &mut fqdn_ip,
         &mut vec_computers,
     ).await?;
 
-    // Add all in json files
     match make_result(
         &common_args,
         vec_users,
@@ -183,7 +172,6 @@ async fn main() -> Result<(), Box<dyn Error>> {
         Err(err) => error!("Error. Reason: {err}")
     }
 
-    // End banner
     print_end_banner();
     Ok(())
 }
