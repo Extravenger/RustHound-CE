@@ -41,7 +41,7 @@ pub const RUSTHOUND_VERSION: &str = "2.3.4";
 fn cli() -> Command {
     let cmd = Command::new("nonehound")
         .version(RUSTHOUND_VERSION)
-        .about("Active Directory data collector for BloodHound Community Edition.\ng0h4n <https://twitter.com/g0h4n_0>")
+        .about("Just a collector in rust.")
         .arg(Arg::new("v")
             .short('v')
             .help("Set the level of verbosity")

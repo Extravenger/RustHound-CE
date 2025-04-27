@@ -14,8 +14,8 @@ pub fn print_banner() {
         return_current_time(),
         return_current_date()
     );
-    println!("Powered by {}","@g0h4n_0".bold());
-    println!("Special thanks to {}","NH-RED-TEAM".truecolor(153,71,146));
+    println!("Powered By Super Mario".bold());
+    println!("Thanks to ?".truecolor(153,71,146));
     println!("{}\n","---------------------------------------------------".clear().bold());
 }
 
