@@ -1,5 +1,5 @@
 [package]
-name = "rusthound"
+name = "nonehound"
 keywords = ["bloodhound", "pentest", "ldap", "tokio", "async"]
 version = "2.3.4"
 edition = "2021"
