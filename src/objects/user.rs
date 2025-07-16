@@ -16,7 +16,7 @@ use crate::enums::sid::sid_maker;
 use crate::enums::spntasks::check_spn;
 use crate::enums::uacflags::get_flag;
 
-/// User structure
+
 #[derive(Debug, Clone, Deserialize, Serialize, Default)]
 pub struct User {
     #[serde(rename ="ObjectIdentifier")]
@@ -46,12 +46,12 @@ pub struct User {
 }
 
 impl User {
-    // New User
+
     pub fn new() -> Self { 
         Self { ..Default::default()} 
     }
 
-    // Immutable access.
+
     pub fn properties(&self) -> &UserProperties {
         &self.properties
     }
@@ -59,7 +59,7 @@ impl User {
         &self.aces
     }
 
-    // Mutable access.
+
     pub fn properties_mut(&mut self) -> &mut UserProperties {
         &mut self.properties
     }
@@ -70,8 +70,8 @@ impl User {
         &mut self.object_identifier
     }
 
-    /// Function to parse and replace value for user object.
-    /// <https://bloodhound.readthedocs.io/en/latest/further-reading/json.html#users>
+
+
     pub fn parse(
         &mut self,
         result: SearchEntry,
@@ -84,25 +84,25 @@ impl User {
         let result_attrs: HashMap<String, Vec<String>> = result.attrs;
         let result_bin: HashMap<String, Vec<Vec<u8>>> = result.bin_attrs;
 
-        // Debug for current object
+
         debug!("Parse user: {result_dn}");
 
-        // Trace all result attributes
+
         for (key, value) in &result_attrs {
             trace!("  {key:?}:{value:?}");
         }
-        // Trace all bin result attributes
+
         for (key, value) in &result_bin {
             trace!("  {key:?}:{value:?}");
         }
 
-        // Change all values...
+
         self.properties.domain = domain.to_uppercase();
         self.properties.distinguishedname = result_dn;
         self.properties.enabled = true;
         self.domain_sid = domain_sid.to_string();
 
-        // With a check
+
         let mut group_id: String ="".to_owned();
         for (key, value) in &result_attrs {
             match key.as_str() {
@@ -131,7 +131,7 @@ impl User {
                     self.properties.unicodepassword = value[0].to_owned();
                 }
                 "sfupassword" => {
-                    //self.properties.sfupassword = value[0].to_owned();
+
                 }
                 "displayName" => {
                     self.properties.displayname = value[0].to_owned();
@@ -154,12 +154,12 @@ impl User {
                     let uac = &value[0].parse::<u32>().unwrap_or(0);
                     self.properties.useraccountcontrol = *uac;
                     let uac_flags = get_flag(*uac);
-                    //trace!("UAC : {:?}",uac_flags);
+
                     for flag in uac_flags {
                         if flag.contains("AccountDisable") {
                             self.properties.enabled = false;
                         };
-                        //if flag.contains("Lockout") { let enabled = true; user_json["Properties"]["enabled"] = enabled;};
+
                         if flag.contains("PasswordNotRequired") {
                             self.properties.passwordnotreqd = true;
                         };
@@ -169,7 +169,7 @@ impl User {
                         if flag.contains("DontReqPreauth") {
                             self.properties.dontreqpreauth = true;
                         };
-                        // KUD (Kerberos Unconstrained Delegation)
+
                         if flag.contains("TrustedForDelegation") {
                             self.properties.unconstraineddelegation = true;
                             self.unconstrained_delegation = true;
@@ -177,16 +177,16 @@ impl User {
                         if flag.contains("NotDelegated") {
                             self.properties.sensitive = true;
                         };
-                        //if flag.contains("PasswordExpired") { let password_expired = true; user_json["Properties"]["pwdneverexpires"] = password_expired;};
+
                         if flag.contains("TrustedToAuthForDelegation") {
                             self.properties.trustedtoauth = true;
                         };
                     }
                 }
                 "msDS-AllowedToDelegateTo"  => {
-                    // KCD (Kerberos Constrained Delegation)
-                    //trace!(" AllowToDelegateTo: {:?}",&value);
-                    // AllowedToDelegate
+
+
+
                     let mut vec_members2: Vec<Member> = Vec::new();
                     for objet in value {
                         let mut member_allowed_to_delegate = Member::new();
@@ -204,7 +204,7 @@ impl User {
                           vec_members2.push(member_allowed_to_delegate.to_owned()); 
                        }
                   }
-                    // *properties.allowedtodelegate = vec_members2.to_owned();
+
                     self.allowed_to_delegate = vec_members2;
                 }
                 "lastLogon" => {
@@ -235,13 +235,13 @@ impl User {
                     }
                 }
                 "servicePrincipalName" => {
-                    // SPNTargets values
+
                     let mut targets: Vec<SPNTarget> = Vec::new();
                     let mut result: Vec<String> = Vec::new();
                     let mut added: bool = false;
                     for v in value {
                         result.push(v.to_owned());
-                        // Checking the spn for service-account (mssql?)
+
                         let _target = match check_spn(v).to_owned() {
                             Some(_target) => {
                                 if !added {
@@ -260,9 +260,9 @@ impl User {
                     group_id = value[0].to_owned();
                 }
                 "IsDeleted" => {
-                    // OID to use: 1.2.840.113556.1.4.417
-                    // https://ldapwiki.com/wiki/IsDeleted
-                    //trace!("isDeleted: {:?}",&value[0]);
+
+
+
                     self.is_deleted = true;
                 }
                 "msDS-SupportedEncryptionTypes" => {
@@ -272,7 +272,7 @@ impl User {
             }
         }
 
-        // For all, bins attributs
+
         let mut sid: String = "".to_owned();
         for (key, value) in &result_bin {
             match key.as_str() {
@@ -285,7 +285,7 @@ impl User {
                     }
                 }
                 "nTSecurityDescriptor" => {
-                    // nTSecurityDescriptor raw to string
+
                     let relations_ace = parse_ntsecuritydescriptor(
                         self,
                         &value[0],
@@ -297,18 +297,18 @@ impl User {
                     self.aces_mut().extend(relations_ace);
                 }
                 "sIDHistory" => {
-                    // not tested! #tocheck
-                    //debug!("sIDHistory: {:?}",&value[0]);
+
+
                     let mut list_sid_history: Vec<String> = Vec::new();
                     for bsid in value {
                         debug!("sIDHistory: {:?}", &bsid);
                         list_sid_history.push(sid_maker(LdapSid::parse(bsid).unwrap().1, domain));
-                        // Todo function to add the sid history in user_json['HasSIDHistory']
+
                     }
                     self.properties.sidhistory = list_sid_history;
                 }
                 "msDS-GroupMSAMembership" => {
-                    // nTSecurityDescriptor raw to string
+
                     let mut relations_ace = parse_ntsecuritydescriptor(
                         self,
                         &value[0],
@@ -317,14 +317,14 @@ impl User {
                         &result_bin,
                         domain,
                     );
-                    // Now add the new ACE wich who can read GMSA password
-                    // trace!("User ACES before GMSA: {:?}", self.aces());
+
+
                     parse_gmsa(&mut relations_ace, self);
-                    // trace!("User ACES after GMSA: {:?}", self.aces());
+
                 }
                 "userCertificate" => {
-                    // <https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-adls/d66d1662-0b4f-44ab-a4c8-e788f3ae39cf>
-                    // <https://docs.rs/x509-parser/latest/x509_parser/certificate/struct.X509Certificate.html>
+
+
                     let res = X509Certificate::from_der(&value[0]);
                     match res {
                         Ok((_rem, _cert)) => {},
@@ -335,7 +335,7 @@ impl User {
             }
         }
 
-        // primaryGroupID if group_id is set
+
         #[allow(irrefutable_let_patterns)]
         if let id = group_id {
             if let Some(part1) = SID_PART1_RE1.find(&sid) {
@@ -345,31 +345,31 @@ impl User {
             }
         }
 
-        // Push DN and SID in HashMap
+
         dn_sid.insert(
             self.properties.distinguishedname.to_owned(),
             self.object_identifier.to_owned(),
         );
-        // Push DN and Type
+
         sid_type.insert(
             self.object_identifier.to_owned(),
             "User".to_string(),
         );
 
-        // Trace and return User struct
-        // trace!("JSON OUTPUT: {:?}",serde_json::to_string(&self).unwrap());
+
+
         Ok(())
     }
 }
 
-/// Function to change some values from LdapObject trait for User
+
 impl LdapObject for User {
-    // To JSON
+
     fn to_json(&self) -> Value {
         serde_json::to_value(self).unwrap()
     }
 
-    // Get values
+
     fn get_object_identifier(&self) -> &String {
         &self.object_identifier
     }
@@ -398,7 +398,7 @@ impl LdapObject for User {
         &false
     }
 
-    // Get mutable values
+
     fn get_aces_mut(&mut self) -> &mut Vec<AceTemplate> {
         &mut self.aces
     }
@@ -409,7 +409,7 @@ impl LdapObject for User {
         &mut self.allowed_to_delegate
     }
 
-    // Edit values
+
     fn set_is_acl_protected(&mut self, is_acl_protected: bool) {
         self.is_acl_protected = is_acl_protected;
         self.properties.isaclprotected = is_acl_protected;
@@ -424,17 +424,17 @@ impl LdapObject for User {
         self.allowed_to_delegate = allowed_to_delegate;
     }
     fn set_links(&mut self, _links: Vec<Link>) {
-        // Not used by current object.
+
     }
     fn set_contained_by(&mut self, contained_by: Option<Member>) {
         self.contained_by = contained_by;
     }
     fn set_child_objects(&mut self, _child_objects: Vec<Member>) {
-        // Not used by current object.
+
     }
 }
 
-/// User properties structure
+
 #[derive(Debug, Clone, Deserialize, Serialize, Default)]
 pub struct UserProperties {
     domain: String,
@@ -475,7 +475,7 @@ pub struct UserProperties {
 }
 
 impl UserProperties {
-    // Immutable access.
+
     pub fn name(&self) -> &String {
         &self.name
     }
@@ -486,7 +486,7 @@ impl UserProperties {
         &self.isaclprotected
     }
 
-    // Mutable access.
+
     pub fn name_mut(&mut self) -> &mut String {
         &mut self.name
     }

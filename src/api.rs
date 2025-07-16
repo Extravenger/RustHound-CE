@@ -36,13 +36,13 @@ pub struct ADResults {
 
 #[derive(Default)]
 pub struct DomainMappings {
-    /// DN to SID
+
     pub dn_sid: HashMap<String, String>,
-    ///  DN to Type
+
     pub sid_type: HashMap<String, String>,
-    /// FQDN to SID
+
     pub fqdn_sid: HashMap<String, String>,
-    /// fqdn to an ip address
+
     pub fqdn_ip: HashMap<String, String>,
 }
 
@@ -59,7 +59,7 @@ pub async fn prepare_results_from_source<S: EntrySource>(
 ) -> Result<ADResults, Box<dyn std::error::Error>> {
     let mut ad_results = parse_result_type_from_source(options, source, total_objects)?;
 
-    // Functions to replace and add missing values
+
     check_all_result(
         options,
         &mut ad_results.users,
@@ -86,18 +86,18 @@ pub async fn prepare_results_from_source<S: EntrySource>(
     Ok(ad_results)
 }
 
-// for `total_objects`, the total number of objects may not be known if the ldap query was never run
-// (e.g run was resumed from cached results)
+
+
 pub fn parse_result_type_from_source(
     common_args: &Options,
     source: impl EntrySource,
     total_objects: Option<usize>,
 ) -> Result<ADResults, Box<dyn Error>> {
     let mut results = ADResults::default();
-    // Domain name
+
     let domain = &common_args.domain;
 
-    // Needed for progress bar stats
+
     let pb = ProgressBar::new(1);
     let mut count = 0;
     let total = total_objects;
@@ -115,7 +115,7 @@ pub fn parse_result_type_from_source(
 
     for entry in source.into_entry_iter() {
         let entry: SearchEntry = entry?.into();
-        // Start parsing with Type matching
+
         let atype = get_type(&entry).unwrap_or(Type::Unknown);
         match atype {
             Type::User => {
@@ -167,11 +167,11 @@ pub fn parse_result_type_from_source(
                 if PARSER_MOD_RE1.is_match(&entry.dn.to_uppercase())
                     || PARSER_MOD_RE2.is_match(&entry.dn.to_uppercase())
                 {
-                    //trace!("Container not to add: {}",&cloneresult.dn.to_uppercase());
+
                     continue;
                 }
 
-                //trace!("Container: {}",&entry.dn.to_uppercase());
+
                 let mut container = Container::new();
                 container.parse(entry, domain, dn_sid, sid_type, &domain_sid)?;
                 results.containers.push(container);
@@ -215,8 +215,8 @@ pub fn parse_result_type_from_source(
                 let _unknown = parse_unknown(entry, domain);
             }
         }
-        // Manage progress bar
-        // Pourcentage (%) = 100 x Valeur partielle/Valeur totale
+
+
         if let Some(total) = total {
             count += 1;
             let pourcentage = 100 * count / total;

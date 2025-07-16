@@ -28,9 +28,9 @@ use crate::banner::progress_bar;
 use crate::enums::ldaptype::*;
 use crate::enums::regex::{PARSER_MOD_RE1,PARSER_MOD_RE2};
 
-// use crate::modules::adcs::parser::{parse_adcs_ca,parse_adcs_template};
 
-/// Function to get type for object by object
+
+
 pub fn parse_result_type(
     common_args:            &Options, 
     result:                 Vec<SearchEntry>,
@@ -54,12 +54,12 @@ pub fn parse_result_type(
     sid_type:           &mut HashMap<String, String>,
     fqdn_sid:           &mut HashMap<String, String>,
     fqdn_ip:            &mut HashMap<String, String>,
-    // adcs_templates: &mut HashMap<String, Vec<String>>,
+
 ) -> Result<(), Box<dyn Error>> {
-    // Domain name
+
     let domain = &common_args.domain;
 
-    // Needed for progress bar stats
+
     let pb = ProgressBar::new(1);
     let mut count = 0;
     let total = result.len();
@@ -67,9 +67,9 @@ pub fn parse_result_type(
 
     info!("Starting the LDAP objects parsing...");
     for entry in result {
-        // Start parsing with Type matching
+
         let cloneresult = entry.clone();
-        //println!("{:?}",&entry);
+
         let atype = get_type(&entry).unwrap_or(Type::Unknown);
         match atype {
             Type::User => {
@@ -153,15 +153,15 @@ pub fn parse_result_type(
             Type::Container => {
                 if PARSER_MOD_RE1.is_match(&cloneresult.dn.to_uppercase()) 
                 {
-                    //trace!("Container not to add: {}",&cloneresult.dn.to_uppercase());
+
                     continue
                 }
                 if PARSER_MOD_RE2.is_match(&cloneresult.dn.to_uppercase()) 
                 {
-                    //trace!("Container not to add: {}",&cloneresult.dn.to_uppercase());
+
                     continue
                 }
-                //trace!("Container: {}",&cloneresult.dn.to_uppercase());
+
                 let mut container = Container::new();
                 container.parse(
                     cloneresult,
@@ -250,8 +250,8 @@ pub fn parse_result_type(
                 let _unknown = parse_unknown(cloneresult, domain);
             }
         }
-        // Manage progress bar
-        // Pourcentage (%) = 100 x Valeur partielle/Valeur totale
+
+
 		count += 1;
         let pourcentage = 100 * count / total;
         progress_bar(pb.to_owned(),"Parsing LDAP objects".to_string(),pourcentage.try_into()?,"%".to_string());

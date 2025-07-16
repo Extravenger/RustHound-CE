@@ -25,25 +25,25 @@ use modules::run_modules;
 const CACHE_DIR: &str = ".nonehound-cache";
 const CACHE_FILE: &str = "ldap.bin";
 
-/// Main of RustHound
+
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
-    // Banner
+
     print_banner();
 
-    // Get args
+
     #[cfg(not(feature = "noargs"))]
     let common_args: Options = extract_args();
     #[cfg(feature = "noargs")]
     let common_args = auto_args();
 
-    // Build logger
+
     Builder::new()
         .filter(Some("nonehound"), common_args.verbose)
         .filter_level(log::LevelFilter::Error)
         .init();
 
-    // Get verbose level
+
     info!("Verbosity level: {:?}", common_args.verbose);
     info!("Collection method: {:?}", common_args.collection_method);
 
@@ -58,7 +58,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
         }
         false => {
             if common_args.cache {
-                // store ldap results in cache
+
                 let ldap_cache_path = std::path::PathBuf::from(CACHE_DIR)
                     .join(&common_args.domain)
                     .join(CACHE_FILE);
@@ -95,7 +95,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
                 )
                 .await?
             } else {
-                // store ldap results in memory
+
                 let mut ldap_results = Vec::new();
                 let total = nonehound_ce::ldap::ldap_search(
                     common_args.ldaps,
@@ -116,7 +116,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
         }
     };
 
-    // Running modules
+
     run_modules(
         &common_args,
         &mut results.mappings.fqdn_ip,
@@ -124,13 +124,13 @@ async fn main() -> Result<(), Box<dyn Error>> {
     )
     .await?;
 
-    // Add all in json files
+
     match nonehound_ce::make_result(&common_args, results) {
         Ok(_) => trace!("Making json/zip files finished!"),
         Err(err) => error!("Error. Reason: {err}"),
     }
 
-    // End banner
+
     print_end_banner();
     Ok(())
 }

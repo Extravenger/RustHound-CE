@@ -1,4 +1,4 @@
-//! Parsing arguments
+
 #[cfg(not(feature = "noargs"))]
 use clap::{Arg, ArgAction, value_parser, Command};
 
@@ -39,12 +39,12 @@ pub enum CollectionMethod {
     DCOnly,
 }
 
-// Current RustHound version
+
 pub const RUSTHOUND_VERSION: &str = env!("CARGO_PKG_VERSION");
 
 #[cfg(not(feature = "noargs"))]
 fn cli() -> Command {
-    // Return Command args
+
     Command::new("nonehound-ce")
     .version(RUSTHOUND_VERSION)
     .about("Active Directory data collector for BloodHound Community Edition.\ng0h4n <https://twitter.com/g0h4n_0>")
@@ -189,13 +189,13 @@ fn cli() -> Command {
 }
 
 #[cfg(not(feature = "noargs"))]
-/// Function to extract all argument and put it in 'Options' structure.
+
 pub fn extract_args() -> Options {
 
-    // Get arguments
+
     let matches = cli().get_matches();
 
-    // Now get values
+
     let d = matches
         .get_one::<String>("domain")
         .map(|s| s.as_str())
@@ -262,7 +262,7 @@ pub fn extract_args() -> Options {
         .unwrap_or(1000);
     let resume = matches.get_flag("resume");
 
-    // Return all
+
     Options {
         domain: d.to_string(),
         username,
@@ -287,13 +287,13 @@ pub fn extract_args() -> Options {
 }
 
 #[cfg(feature = "noargs")]
-/// Function to automatically get all informations needed and put it in 'Options' structure.
+
 pub fn auto_args() -> Options {
 
-    // Request registry key to get informations
+
     let hklm = RegKey::predef(HKEY_LOCAL_MACHINE);
     let cur_ver = hklm.open_subkey("SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters").unwrap();
-    //Computer\HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters\Domain
+
     let domain: String = match cur_ver.get_value("Domain") {
         Ok(domain) => domain,
         Err(err) => {
@@ -301,14 +301,14 @@ pub fn auto_args() -> Options {
         }
     };
     
-    // Get LDAP fqdn
+
     let _fqdn: String = run(&format!("nslookup -query=srv _ldap._tcp.{}",&domain));
     let re = Regex::new(r"hostname.*= (?<ldap_fqdn>[0-9a-zA-Z]{1,})").unwrap();
     let mut values =  re.captures_iter(&_fqdn);
     let caps = values.next().unwrap();
     let fqdn = caps["ldap_fqdn"].to_string();
 
-    // Get LDAP port
+
     let re = Regex::new(r"port.*= (?<ldap_port>[0-9]{3,})").unwrap();
     let mut values =  re.captures_iter(&_fqdn);
     let caps = values.next().unwrap();
@@ -324,7 +324,7 @@ pub fn auto_args() -> Options {
         }
     };
 
-    // Return all
+
     Options {
         domain: domain.to_string(),
         username: "not set".to_string(),

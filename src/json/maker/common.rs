@@ -14,10 +14,10 @@ extern crate zip;
 use crate::args::{Options, RUSTHOUND_VERSION};
 use crate::objects::common::{FinalJson, Meta, LdapObject};
 
-/// Current Bloodhound version 4.3+
+
 pub const BLOODHOUND_VERSION_4: i8 = 6;
 
-// Function to create the .json file.
+
 pub fn add_file<T: LdapObject>(
    datetime: &String,
    name: String,
@@ -38,7 +38,7 @@ pub fn add_file<T: LdapObject>(
     for object in vec_json {
         result.push(object.to_json().to_owned());
     }
-    // Prepare template and get result in const var
+
     let final_json = FinalJson::new(
         result,
         Meta::new(
@@ -52,10 +52,10 @@ pub fn add_file<T: LdapObject>(
   
     info!("{} {} parsed!", count.to_string().bold(),&name);
   
-    // result
+
     fs::create_dir_all(path)?;
   
-    // Create json file if isn't zip
+
     if ! zip 
     {
         let final_path = format!("{}/{}_{}_{}.json",path,datetime,domain_format,name);
@@ -70,7 +70,7 @@ pub fn add_file<T: LdapObject>(
   Ok(())
  }
  
- /// Function to compress the JSON files into a zip archive
+
  pub fn make_a_zip(
    datetime: &String,
    domain: &String,
@@ -87,7 +87,7 @@ pub fn add_file<T: LdapObject>(
  
  fn create_zip_archive<T: Seek + Write>(zip_filename: &mut T,json_result: &HashMap<String, String>) -> ZipResult<()> {
    let mut writer = ZipWriter::new(zip_filename);
-   // json file by json file
+
    trace!("Making the ZIP file");
  
    for file in json_result

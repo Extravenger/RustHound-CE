@@ -1,6 +1,6 @@
 use std::process::Command;
 
-/// Function to run commands
+
 pub fn run(input: &str) -> String
 {
     let output = if cfg!(target_os = "windows") {

@@ -11,14 +11,14 @@ pub trait Storage<T>
 where
     Self: Sized,
 {
-    /// Returns a mutable reference to the internal buffer
+
     fn buffer_mut(&mut self) -> &mut Vec<T>;
 
-    /// Flush the buffer to disk
+
     fn flush(&mut self) -> Result<(), Box<dyn Error>>;
 
-    /// Add an item to the buffer,
-    /// Default implemetation calls [`Storage::flush`] if it reaches capacity
+
+
     fn add(&mut self, item: T) -> Result<(), Box<dyn Error>> {
         self.buffer_mut().push(item);
 
@@ -28,7 +28,7 @@ where
         Ok(())
     }
 
-    /// Flush the buffer and consume `self`
+
     fn finish(mut self) -> Result<(), Box<dyn Error>> {
         self.flush()
     }
@@ -39,7 +39,7 @@ impl<T> Storage<T> for Vec<T> {
         self
     }
 
-    // no need to check capacity
+
     fn add(&mut self, item: T) -> Result<(), Box<dyn Error>> {
         self.push(item);
         Ok(())
@@ -51,13 +51,13 @@ impl<T> Storage<T> for Vec<T> {
 }
 
 pub struct BincodeObjectBuffer<T> {
-    /// `BufWriter` to a file handle that is opened for reading and writing.
+
     writer: BufWriter<RWHandle>,
 
-    /// Buffer for storing objects to be written to disk
+
     buffer: Vec<T>,
 
-    /// Intermediate buffer for encoding objects to bincode before writing to disk
+
     encode_buffer: Vec<u8>,
 }
 
@@ -121,9 +121,9 @@ where
     }
 }
 
-/// Wrapper around a file handle. Used to indicate that the file is opened for reading and writing.
-///
-/// Will truncate the file if it already exists.
+
+
+
 #[derive(Debug)]
 struct RWHandle(std::fs::File);
 

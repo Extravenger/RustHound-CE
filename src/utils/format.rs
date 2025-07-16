@@ -1,4 +1,4 @@
-/// Fonction to parse DOMAIN.LOCAL to DC=DOMAIN,DC=LOCAL
+
 pub fn domain_to_dc(domain: &str) -> String {
     let split = domain.split('.');
     let mut dc = String::new();

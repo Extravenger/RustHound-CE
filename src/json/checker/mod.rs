@@ -23,7 +23,7 @@ use crate::objects::{
 };
 pub mod common;
 
-/// Functions to replace and add missing values
+
 pub fn check_all_result(
     common_args:             &Options,
     vec_users:               &mut Vec<User>,

@@ -27,7 +27,7 @@ bitflags! {
     }
 }
 
-/// Get the UAC flags from "userAccountControl" LDAP attribut.
+
 pub fn get_flag(uac: u32) -> Vec<String>
 {
     let mut uac_flags: Vec<&str> = Vec::new();

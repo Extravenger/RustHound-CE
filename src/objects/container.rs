@@ -11,7 +11,7 @@ use crate::enums::sid::decode_guid_le;
 use crate::utils::date::string_to_epoch;
 
 
-/// Container structure
+
 #[derive(Debug, Clone, Deserialize, Serialize, Default)]
 pub struct Container {
     #[serde(rename = "Properties")]
@@ -31,12 +31,12 @@ pub struct Container {
     }
 
 impl Container {
-    // New container.
+
     pub fn new() -> Self { 
         Self { ..Default::default() } 
     }
 
-    /// Function to parse and replace value for Container object.
+
     pub fn parse(
         &mut self,
         result: SearchEntry,
@@ -49,24 +49,24 @@ impl Container {
         let result_attrs: HashMap<String, Vec<String>> = result.attrs;
         let result_bin: HashMap<String, Vec<Vec<u8>>> = result.bin_attrs;
 
-        // Debug for current object
+
         debug!("Parse Container: {result_dn}");
 
-        // Trace all result attributes
+
         for (key, value) in &result_attrs {
             trace!("  {key:?}:{value:?}");
         }
-        // Trace all bin result attributes
+
         for (key, value) in &result_bin {
             trace!("  {key:?}:{value:?}");
         }
 
-        // Change all values...
+
         self.properties.domain = domain.to_uppercase();
         self.properties.distinguishedname = result_dn;
         self.properties.domainsid = domain_sid.to_string();
 
-        // With a check
+
         for (key, value) in &result_attrs {
             match key.as_str() {
                 "name" => {
@@ -86,7 +86,7 @@ impl Container {
                 _ => {}
             }
         }
-        // For all, bins attributs
+
         for (key, value) in &result_bin {
             match key.as_str() {
                 "objectGUID" => {
@@ -94,7 +94,7 @@ impl Container {
                     self.object_identifier = guid.to_owned();
                 }
                 "nTSecurityDescriptor" => {
-                    // nTSecurityDescriptor raw to string
+
                     let relations_ace = parse_ntsecuritydescriptor(
                         self,
                         &value[0],
@@ -112,24 +112,24 @@ impl Container {
             }
         }
 
-        // Push DN and SID in HashMap
+
         dn_sid.insert(
             self.properties.distinguishedname.to_string(),
             self.object_identifier.to_string()
         );
-        // Push DN and Type
+
         sid_type.insert(
             self.object_identifier.to_string(),
             "Container".to_string(),
         );
 
-        // Trace and return Contaier struct
-        // trace!("JSON OUTPUT: {:?}",serde_json::to_string(&self).unwrap());
+
+
         Ok(())
     }
 }
 
-/// Default FSP properties structure
+
 #[derive(Debug, Clone, Deserialize, Serialize, Default)]
 pub struct ContainerProperties {
    domain: String,
@@ -143,12 +143,12 @@ pub struct ContainerProperties {
 }
 
 impl LdapObject for Container {
-    // To JSON
+
     fn to_json(&self) -> Value {
         serde_json::to_value(self).unwrap()
     }
 
-    // Get values
+
     fn get_object_identifier(&self) -> &String {
         &self.object_identifier
     }
@@ -177,7 +177,7 @@ impl LdapObject for Container {
         &false
     }
     
-    // Get mutable values
+
     fn get_aces_mut(&mut self) -> &mut Vec<AceTemplate> {
         &mut self.aces
     }
@@ -188,7 +188,7 @@ impl LdapObject for Container {
         panic!("Not used by current object.");
     }
     
-    // Edit values
+
     fn set_is_acl_protected(&mut self, is_acl_protected: bool) {
         self.is_acl_protected = is_acl_protected;
         self.properties.isaclprotected = is_acl_protected;
@@ -197,13 +197,13 @@ impl LdapObject for Container {
         self.aces = aces;
     }
     fn set_spntargets(&mut self, _spn_targets: Vec<SPNTarget>) {
-        // Not used by current object.
+
     }
     fn set_allowed_to_delegate(&mut self, _allowed_to_delegate: Vec<Member>) {
-        // Not used by current object.
+
     }
     fn set_links(&mut self, _links: Vec<Link>) {
-        // Not used by current object.
+
     }
     fn set_contained_by(&mut self, contained_by: Option<Member>) {
         self.contained_by = contained_by;

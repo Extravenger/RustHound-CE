@@ -14,7 +14,7 @@ pub const SUCCESSFUL_ACCESS_ACE_FLAG: u8 = 0x04;
 pub const ACE_OBJECT_TYPE_PRESENT: u32 = 0x0001;
 pub const ACE_INHERITED_OBJECT_TYPE_PRESENT: u32 = 0x0002;
 
-// EXTRIGHTS_GUID_MAPPING
+
 pub const GET_CHANGES: &str = "1131f6aa-9c07-11d1-f79f-00c04fc2dcd2";
 pub const GET_CHANGES_ALL: &str = "1131f6ad-9c07-11d1-f79f-00c04fc2dcd2";
 pub const GET_CHANGES_IN_FILTERED_SET: &str = "89e95b76-444d-4c62-991a-0facbeda640c";
@@ -25,7 +25,7 @@ pub const USER_ACCOUNT_RESTRICTIONS_SET: &str = "4c164200-20c0-11d0-a768-00aa006
 pub const WRITE_GPLINK: &str = "f30e3bbe-9ff0-11d1-b603-0000f80367c1";
 pub const WRITE_SPN: &str = "f3a64788-5306-11d1-a9c5-0000f80367c1";
 pub const ADD_KEY_PRINCIPAL: &str = "5b47d60f-6090-40b2-9f37-2a4de88f3063";
-// ADCS
+
 pub const PKI_NAME_FLAG: &str = "ea1dddc4-60ff-416e-8cc0-17cee534bce7";
 pub const PKI_ENROLLMENT_FLAG: &str = "d15ef7d8-f226-46db-ae79-b34e560bd12c";
 pub const ENROLL: &str = "0e10c968-78fb-11d2-90d4-00c04f79dc55";

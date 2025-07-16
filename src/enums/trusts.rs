@@ -3,8 +3,8 @@ use crate::objects::trust::Trust;
 
 bitflags! {
    struct Flags: u32 {
-      // TRUST FLAG
-      // From: https://msdn.microsoft.com/en-us/library/cc223779.aspx
+
+
       const NON_TRANSITIVE= 0x00000001;
       const UPLEVEL_ONLY= 0x00000002;
       const QUARANTINED_DOMAIN= 0x00000004;
@@ -19,7 +19,7 @@ bitflags! {
    }
 }
 
-/// Get the trust flags from "trustDomain".
+
 pub fn get_trust_flag(trustflag: u32, object: &mut Trust)
 {
    let mut is_transitive = false;
@@ -58,7 +58,7 @@ pub fn get_trust_flag(trustflag: u32, object: &mut Trust)
       sid_filtering = true;
    }
 
-   // change value in mut vec json
+
    *object.sid_filtering_enabled_mut() = sid_filtering;
    *object.is_transitive_mut() = is_transitive;
 }

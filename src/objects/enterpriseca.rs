@@ -17,7 +17,7 @@ use crate::objects::common::{LdapObject, AceTemplate, SPNTarget, Link, Member};
 use crate::utils::crypto::calculate_sha1;
 use crate::utils::date::string_to_epoch;
 
-/// EnterpriseCA structure
+
 #[derive(Debug, Clone, Deserialize, Serialize, Default)]
 pub struct EnterpriseCA {
     #[serde(rename = "Properties")]
@@ -41,22 +41,22 @@ pub struct EnterpriseCA {
 }
 
 impl EnterpriseCA {
-    // New EnterpriseCA
+
     pub fn new() -> Self { 
         Self { ..Default::default() } 
     }
 
-    // Immutable access.
+
     pub fn enabled_cert_templates(&self) -> &Vec<Member> {
         &self.enabled_cert_templates
     }
 
-    // Mutable access.
+
     pub fn enabled_cert_templates_mut(&mut self) -> &mut Vec<Member> {
         &mut self.enabled_cert_templates
     }
 
-    /// Function to parse and replace value in json template for Enterprise CA object.
+
     pub fn parse(
         &mut self,
         result: SearchEntry,
@@ -69,26 +69,26 @@ impl EnterpriseCA {
         let result_attrs: HashMap<String, Vec<String>> = result.attrs;
         let result_bin: HashMap<String, Vec<Vec<u8>>> = result.bin_attrs;
 
-        // Debug for current object
+
         debug!("Parse EnterpriseCA: {result_dn}");
 
-        // Trace all result attributes
+
         for (key, value) in &result_attrs {
             trace!("  {key:?}:{value:?}");
         }
-        // Trace all bin result attributes
+
         for (key, value) in &result_bin {
             trace!("  {key:?}:{value:?}");
         }
 
-        // Change all values...
+
         self.properties.domain = domain.to_uppercase();
         self.properties.distinguishedname = result_dn;
         self.properties.domainsid = domain_sid.to_string();
         let ca_name = get_name_from_full_distinguishedname(&self.properties.distinguishedname);
         self.properties.caname = ca_name;
 
-        // With a check
+
         for (key, value) in &result_attrs {
             match key.as_str() {
                 "name" => {
@@ -105,7 +105,7 @@ impl EnterpriseCA {
                     if value.is_empty() {
                         error!("No certificate templates enabled for {}", self.properties.caname);
                     } else {
-                        //ca.enabled_templates = value.to_vec();
+
                         info!("Found {} enabled certificate templates", value.len().to_string().bold());
                         trace!("Enabled certificate templates: {:?}", value);
                         let enabled_templates: Vec<Member> = value.iter().map(|template_name| {
@@ -131,16 +131,16 @@ impl EnterpriseCA {
             }
         }
 
-        // For all, bins attributs
+
         for (key, value) in &result_bin {
             match key.as_str() {
                 "objectGUID" => {
-                    // objectGUID raw to string
+
                     let guid = decode_guid_le(&value[0]);
                     self.object_identifier = guid.to_owned();
                 }
                 "nTSecurityDescriptor" => {
-                    // nTSecurityDescriptor raw to string
+
                     let relations_ace = parse_ntsecuritydescriptor(
                         self,
                         &value[0],
@@ -149,11 +149,11 @@ impl EnterpriseCA {
                         &result_bin,
                         domain,
                     );
-                    // Aces
+
                     self.aces = relations_ace;
-                    // HostingComputer
+
                     self.hosting_computer = Self::get_hosting_computer(&value[0], domain);
-                    // CASecurity
+
                     let ca_security_data = parse_ca_security(&value[0], &self.hosting_computer, domain);
                     if !ca_security_data.is_empty() {
                         let ca_security = CASecurity {
@@ -176,26 +176,26 @@ impl EnterpriseCA {
                     }
                 }
                 "cACertificate" => {
-                    //info!("{:?}:{:?}", key,value[0].to_owned());
+
                     let certsha1: String = calculate_sha1(&value[0]);
                     self.properties.certthumbprint = certsha1.to_owned();
                     self.properties.certname = certsha1.to_owned();
                     self.properties.certchain = vec![certsha1.to_owned()];
 
-                    // Parsing certificate.
+
                     let res = X509Certificate::from_der(&value[0]);
                     match res {
                         Ok((_rem, cert)) => {
-                            // println!("Basic Constraints Extensions:");
+
                             for ext in cert.extensions() {
-                                // println!("{:?} : {:?}",&ext.oid, ext);
+
                                 if &ext.oid == &oid!(2.5.29.19) {
-                                    // <https://docs.rs/x509-parser/latest/x509_parser/extensions/struct.BasicConstraints.html>
+
                                     if let ParsedExtension::BasicConstraints(basic_constraints) = &ext.parsed_extension() {
                                         let _ca = &basic_constraints.ca;
                                         let _path_len_constraint = &basic_constraints.path_len_constraint;
-                                        // println!("ca: {:?}", _ca);
-                                        // println!("path_len_constraint: {:?}", _path_len_constraint);
+
+
                                         match _path_len_constraint {
                                             Some(_path_len_constraint) => {
                                                 if _path_len_constraint > &0 {
@@ -223,32 +223,32 @@ impl EnterpriseCA {
             }
         }
 
-        // Push DN and SID in HashMap
+
         if self.object_identifier != "SID" {
             dn_sid.insert(
                 self.properties.distinguishedname.to_string(),
                 self.object_identifier.to_string(),
             );
-            // Push DN and Type
+
             sid_type.insert(
                 self.object_identifier.to_string(),
                 "EnterpriseCA".to_string(),
             );
         }
 
-        // Trace and return EnterpriseCA struct
-        // trace!("JSON OUTPUT: {:?}",serde_json::to_string(&self).unwrap());
+
+
         Ok(())
     }
 
-    /// Function to get HostingComputer from ACL if ACE get ManageCertificates and is not Group.
+
     fn get_hosting_computer(
         nt: &[u8],
         domain: &str,
     ) -> String {
         let mut hosting_computer = String::from("Not found");
         let blacklist_sid = [
-            // <https://learn.microsoft.com/fr-fr/windows-server/identity/ad-ds/manage/understand-security-identifiers>
+
             "-544", // Administrators
             "-519", // Enterprise Administrators
             "-512", // Domain Admins
@@ -271,7 +271,7 @@ impl EnterpriseCA {
                             if (MaskFlags::MANAGE_CERTIFICATES.bits() | mask) == mask
                             && !blacklist_sid.iter().any(|blacklisted| sid.ends_with(blacklisted)) 
                             {
-                                // println!("SID MANAGE_CERTIFICATES: {:?}",&sid);
+
                                 hosting_computer = sid;
                                 return hosting_computer
                             }
@@ -286,12 +286,12 @@ impl EnterpriseCA {
 }
 
 impl LdapObject for EnterpriseCA {
-    // To JSON
+
     fn to_json(&self) -> Value {
         serde_json::to_value(self).unwrap()
     }
 
-    // Get values
+
     fn get_object_identifier(&self) -> &String {
         &self.object_identifier
     }
@@ -320,7 +320,7 @@ impl LdapObject for EnterpriseCA {
         &false
     }
 
-    // Get mutable values
+
     fn get_aces_mut(&mut self) -> &mut Vec<AceTemplate> {
         &mut self.aces
     }
@@ -331,7 +331,7 @@ impl LdapObject for EnterpriseCA {
         panic!("Not used by current object.");
     }
 
-    // Edit values
+
     fn set_is_acl_protected(&mut self, is_acl_protected: bool) {
         self.is_acl_protected = is_acl_protected;
         self.properties.isaclprotected = is_acl_protected;
@@ -340,24 +340,24 @@ impl LdapObject for EnterpriseCA {
         self.aces = aces;
     }
     fn set_spntargets(&mut self, _spn_targets: Vec<SPNTarget>) {
-        // Not used by current object.
+
     }
     fn set_allowed_to_delegate(&mut self, _allowed_to_delegate: Vec<Member>) {
-        // Not used by current object.
+
     }
     fn set_links(&mut self, _links: Vec<Link>) {
-        // Not used by current object.
+
     }
     fn set_contained_by(&mut self, contained_by: Option<Member>) {
         self.contained_by = contained_by;
     }
     fn set_child_objects(&mut self, _child_objects: Vec<Member>) {
-        // Not used by current object.
+
     }
 }
 
 
-// EnterpriseCA properties structure
+
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct EnterpriseCAProperties {
     domain: String,
@@ -409,7 +409,7 @@ impl Default for EnterpriseCAProperties {
     }
  }
 
-// CARegistryData properties structure
+
 #[derive(Debug, Clone, Deserialize, Serialize, Default)]
 pub struct CARegistryData {
     #[serde(rename = "CASecurity")]
@@ -433,7 +433,7 @@ impl CARegistryData {
     }
 }
 
-// CASecurity properties structure
+
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct CASecurity {
     #[serde(rename = "Data")]
@@ -455,7 +455,7 @@ impl Default for CASecurity {
     }
 }
 
-// EnrollmentAgentRestrictions properties structure
+
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct EnrollmentAgentRestrictions {
     #[serde(rename = "Restrictions")]
@@ -476,7 +476,7 @@ impl Default for EnrollmentAgentRestrictions {
     }
 }
 
-// IsUserSpecifiesSanEnabled properties structure
+
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct IsUserSpecifiesSanEnabled {
     #[serde(rename = "Value")]
@@ -497,7 +497,7 @@ impl Default for IsUserSpecifiesSanEnabled {
     }
 }
 
-// RoleSeparationEnabled properties structure
+
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct RoleSeparationEnabled {
     #[serde(rename = "Value")]

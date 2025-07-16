@@ -9,9 +9,9 @@ use std::collections::HashMap;
 use std::time::Duration;
 use crate::objects::computer::Computer;
 
-/// Function to resolve all IP address from the LDAP FQDN vector
-/// <https://docs.rs/trust-dns-resolver/latest/trust_dns_resolver/index.html>
-/// <https://github.com/shadowsocks/shadowsocks-rust/blob/master/crates/shadowsocks-service/src/config.rs>
+
+
+
 pub async fn resolving_all_fqdn(
    dns_tcp:       bool,
    name_server:   &String,
@@ -26,7 +26,7 @@ pub async fn resolving_all_fqdn(
          if (*vec_computer[i].properties().name() == value.0.to_owned()) 
          && (*vec_computer[i].properties().enabled()) {
             debug!("Trying to resolve FQDN: {}",value.0.to_string());
-            // Resolve FQDN to IP address
+
             let address = resolver(value.0.to_string(),dns_tcp,name_server).await;
             if let Some(addr) = address {
                fqdn_ip.insert(value.0.to_owned().to_string(),addr.to_owned().to_string());
@@ -39,20 +39,20 @@ pub async fn resolving_all_fqdn(
    info!("Resolving FQDN to IP address finished!");
 }
 
-/// Asynchronous function to resolve IP address from the ldap FQDN
+
 pub async fn resolver(
    fqdn: String,
    dns_tcp: bool, 
    name_server: &String,
 ) -> Option<String>
 {
-   // Get configuration and options for resolver
+
    let (c,o) = make_resolver_conf(dns_tcp,name_server);
 
-   // Construct a new Resolver with default configuration options
+
    let resolver = TokioAsyncResolver::tokio(c,o);
 
-   // Resolver
+
    let result = resolver.lookup_ip(fqdn);
 
    match result.await{
@@ -67,7 +67,7 @@ pub async fn resolver(
    None
 }
 
-/// Function to prepare resolver configuration
+
 pub fn make_resolver_conf(
    dns_tcp: bool, 
    name_server: &String,

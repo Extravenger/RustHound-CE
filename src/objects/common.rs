@@ -6,12 +6,12 @@ use serde_json::{json,value::Value};
 use serde::{Deserialize, Serialize};
 
 
-/// LdapObject structure
+
 pub trait LdapObject {
-   // Ldap object structure (User,Group,Computer...) to JSON
+
    fn to_json(&self) -> Value;
 
-   // Get values
+
    fn get_object_identifier(&self) -> &String;
    fn get_is_acl_protected(&self) -> &bool;
    fn get_aces(&self) -> &Vec<AceTemplate>;
@@ -20,15 +20,15 @@ pub trait LdapObject {
    fn get_links(&self) -> &Vec<Link>;
    fn get_contained_by(&self) -> &Option<Member>;
    fn get_child_objects(&self) -> &Vec<Member>;
-   // Only for computer objects
+
    fn get_haslaps(&self) -> &bool;
 
-   // Get mutable value
+
    fn get_aces_mut(&mut self) -> &mut Vec<AceTemplate>;
    fn get_spntargets_mut(&mut self) -> &mut Vec<SPNTarget>;
    fn get_allowed_to_delegate_mut(&mut self) -> &mut Vec<Member>;
 
-   // Edit values
+
    fn set_is_acl_protected(&mut self, is_acl_protected: bool);
    fn set_aces(&mut self, aces: Vec<AceTemplate>);
    fn set_spntargets(&mut self, spn_targets: Vec<SPNTarget>);
@@ -38,7 +38,7 @@ pub trait LdapObject {
    fn set_child_objects(&mut self, child_objects: Vec<Member>);
 }
 
-/// LocalGroup structure
+
 #[derive(Debug, Clone, Deserialize, Serialize, Default)]
 pub struct LocalGroup {
    #[serde(rename = "ObjectIdentifier")]
@@ -54,14 +54,14 @@ pub struct LocalGroup {
 }
 
 impl LocalGroup {
-   // New Local Group.
+
    pub fn new() -> Self { 
       Self { 
          ..Default::default()
       }
    }
 
-   // Immutable access.
+
    pub fn object_identifier(&self) -> &String {
       &self.object_identifier
    }
@@ -78,7 +78,7 @@ impl LocalGroup {
       &self.failure_reason
    }
 
-   // Mutable access.
+
    pub fn object_identifier_mut(&mut self) -> &mut String {
       &mut self.object_identifier
    }
@@ -96,7 +96,7 @@ impl LocalGroup {
    }
 }
 
-/// Session structure
+
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct Session {
    #[serde(rename = "Results")]
@@ -108,7 +108,7 @@ pub struct Session {
 }
 
 impl Default for Session {
-   /// Default values for Session structure.
+
    fn default() -> Session {
       Session {
          results: Vec::new(),
@@ -119,7 +119,7 @@ impl Default for Session {
 }
 
 impl Session {
-   // New session.
+
    pub fn new() -> Self { 
       Self { 
          collected: true,
@@ -127,7 +127,7 @@ impl Session {
       }
    }
 
-   // Immutable access.
+
    pub fn results(&self) -> &Vec<UserComputerSession> {
       &self.results
    }
@@ -138,7 +138,7 @@ impl Session {
       &self.failure_reason
    }
 
-   // Mutable access.
+
    pub fn results_mut(&mut self) -> &mut Vec<UserComputerSession> {
       &mut self.results
    }
@@ -150,7 +150,7 @@ impl Session {
    }
 }
 
-/// UserSID to ComputerSID Session link structure
+
 #[derive(Debug, Clone, Deserialize, Serialize, Default)]
 pub struct UserComputerSession {
    #[serde(rename = "UserSID")]
@@ -160,14 +160,14 @@ pub struct UserComputerSession {
 }
 
 impl UserComputerSession {
-   // New User Computer Session.
+
    pub fn new() -> Self { 
       Self { 
          ..Default::default()
       }
    }
 
-   // Immutable access.
+
    pub fn user_sid(&self) -> &String {
       &self.user_sid
    }
@@ -175,7 +175,7 @@ impl UserComputerSession {
       &self.computer_sid
    }
 
-   // Mutable access.
+
    pub fn user_sid_mut(&mut self) -> &mut String {
       &mut self.user_sid
    }
@@ -185,7 +185,7 @@ impl UserComputerSession {
    
 }
 
-/// Session structure
+
 #[derive(Debug, Clone, Deserialize, Serialize, Default)]
 pub struct UserRight {
    #[serde(rename = "Privilege")]
@@ -201,14 +201,14 @@ pub struct UserRight {
 }
 
 impl UserRight {
-   // New User Right.
+
    pub fn new() -> Self { 
       Self { 
          ..Default::default()
       }
    }
 
-   // Immutable access.
+
    pub fn privilege(&self) -> &String {
       &self.privilege
    }
@@ -225,7 +225,7 @@ impl UserRight {
       &self.failure_reason
    }
 
-   // Mutable access.
+
    pub fn privilege_mut(&mut self) -> &mut String {
       &mut self.privilege
    }
@@ -244,7 +244,7 @@ impl UserRight {
 }
 
 
-/// DCRegistryData structure
+
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct DCRegistryData {
    #[serde(rename = "CertificateMappingMethods")]
@@ -262,7 +262,7 @@ impl Default for DCRegistryData {
    }
 }
 
-/// RegistryData structure
+
 #[derive(Debug, Clone, Deserialize, Serialize, Default)]
 pub struct RegistryData {
    #[serde(rename = "Value")]
@@ -274,7 +274,7 @@ pub struct RegistryData {
 }
 
 impl RegistryData {
-   // New RegistryData.
+
    pub fn new() -> Self { 
       Self {
          collected: true,
@@ -283,12 +283,12 @@ impl RegistryData {
    }
 }
 
-/// Function to return default value for struct.
+
 pub fn default_true() -> bool {
    true
 }
 
-/// Member structure
+
 #[derive(Debug, Clone, Deserialize, Serialize, Default)]
 pub struct Member {
    #[serde(rename = "ObjectIdentifier")]
@@ -298,7 +298,7 @@ pub struct Member {
 }
 
 impl Member {
-   // New member.
+
     pub fn new() -> Self {
       Self { 
          object_identifier: "SID".to_string(),
@@ -306,7 +306,7 @@ impl Member {
       }
    }
 
-   // Immutable access.
+
    pub fn object_identifier(&self) -> &String {
       &self.object_identifier
    }
@@ -314,7 +314,7 @@ impl Member {
       &self.object_type
    }
 
-   // Mutable access.
+
    pub fn object_identifier_mut(&mut self) -> &mut String {
       &mut self.object_identifier
    }
@@ -323,7 +323,7 @@ impl Member {
    }
 }
 
-/// AceTemplate structure
+
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct AceTemplate {
    #[serde(rename = "PrincipalSID")]
@@ -339,7 +339,7 @@ pub struct AceTemplate {
 }
 
 impl AceTemplate {
-   // New ACE object.
+
    pub fn new(
       principal_sid: String,
       principal_type: String,
@@ -350,7 +350,7 @@ impl AceTemplate {
       Self { principal_sid, principal_type , right_name, is_inherited, inheritance_hash} 
    }
 
-   // Immutable access.
+
    pub fn principal_sid(&self) -> &String {
       &self.principal_sid
    }
@@ -367,7 +367,7 @@ impl AceTemplate {
       &self.inheritance_hash
    }
 
-   // Mutable access.
+
    pub fn principal_sid_mut(&mut self) -> &mut String {
       &mut self.principal_sid
    }
@@ -385,7 +385,7 @@ impl AceTemplate {
    }
 }
 
-/// Link structure
+
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct Link {
    #[serde(rename = "IsEnforced")]
@@ -395,10 +395,10 @@ pub struct Link {
 }
 
 impl Link {
-   // New object.
+
    pub fn new(is_enforced: bool, guid: String) -> Self { Self { is_enforced, guid } }
    
-   // Immutable access.
+
    pub fn is_enforced(&self) -> &bool {
       &self.is_enforced
    }
@@ -406,7 +406,7 @@ impl Link {
       &self.guid
    }
  
-   // Mutable access.
+
    pub fn is_enforced_mut(&mut self) -> &mut bool {
       &mut self.is_enforced
    }
@@ -415,7 +415,7 @@ impl Link {
    }
 }
 
-/// GPOChange structure
+
 #[derive(Debug, Clone, Deserialize, Serialize, Default)]
 pub struct GPOChange {
    #[serde(rename = "LocalAdmins")]
@@ -431,14 +431,14 @@ pub struct GPOChange {
 }
 
 impl GPOChange {
-   // New GPOChanges.
+
    pub fn new() -> Self { 
       Self {
          ..Default::default()
       } 
    }
 
-   // Imutable access.
+
    pub fn local_admins(&self) -> &Vec<Member> {
       &self.local_admins
    }
@@ -455,7 +455,7 @@ impl GPOChange {
       &self.affected_computers
    }
 
-   // Mutable access.
+
    pub fn local_admins_mut(&mut self) -> &mut Vec<Member> {
       &mut self.local_admins
    }
@@ -473,7 +473,7 @@ impl GPOChange {
    }
 }
 
-/// SPNTarget structure
+
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct SPNTarget {
    #[serde(rename = "ComputerSID")]
@@ -485,7 +485,7 @@ pub struct SPNTarget {
 }
 
 impl SPNTarget {
-   // New object.
+
    pub fn new() -> Self { 
       Self { 
          computer_sid: "SID".to_string(), 
@@ -494,7 +494,7 @@ impl SPNTarget {
       } 
    }
 
-   // Immutable access.
+
    pub fn computer_sid(&self) -> &String {
       &self.computer_sid
    }
@@ -505,7 +505,7 @@ impl SPNTarget {
       &self.service
    }
 
-   // Mutable access.
+
    pub fn computer_sid_mut(&mut self) -> &mut String {
       &mut self.computer_sid
    }
@@ -517,7 +517,7 @@ impl SPNTarget {
    }
 }
 
-/// Final JSON structure
+
 #[derive(Debug, Clone, Deserialize, Serialize, Default)]
 pub struct FinalJson{
    data: Vec<Value>,
@@ -525,14 +525,14 @@ pub struct FinalJson{
 }
 
 impl FinalJson  {
-   // New FinalJson.
+
    pub fn new(data: Vec<Value>, meta: Meta) -> Self { 
       Self {
          data,
          meta
       }
    }
-   // Imutable access.
+
    pub fn data(&self) -> &Vec<Value> {
       &self.data
    }
@@ -540,7 +540,7 @@ impl FinalJson  {
       &self.meta
    }
 
-   // Mutable access.
+
    pub fn data_mut(&mut self) -> &mut Vec<Value> {
       &mut self.data
    }
@@ -549,7 +549,7 @@ impl FinalJson  {
    }
 }
 
-/// Meta data for final JSON structure
+
 #[derive(Debug, Clone, Deserialize, Serialize, Default)]
 pub struct Meta {
    methods: i32,
@@ -561,7 +561,7 @@ pub struct Meta {
 }
 
 impl Meta {
-   // New Meta.
+
    pub fn new(
       methods: i32,
       mtype: String,
@@ -578,7 +578,7 @@ impl Meta {
       } 
    }
    
-   // Imutable access.
+
    pub fn methods(&self) -> &i32 {
       &self.methods
    }
@@ -592,7 +592,7 @@ impl Meta {
       &self.version
    }
 
-   // Mutable access.
+
    pub fn methods_mut(&mut self) -> &mut i32 {
       &mut self.methods
    }
@@ -608,7 +608,7 @@ impl Meta {
 }
 
 
-/// Function to parse and replace value for unknown object.
+
 pub fn parse_unknown(result: SearchEntry, _domain: &str) -> serde_json::value::Value  {
 
    let _result_dn = result.dn.to_uppercase();
@@ -619,15 +619,15 @@ pub fn parse_unknown(result: SearchEntry, _domain: &str) -> serde_json::value::V
        "unknown": null,
    });
 
-   // Debug for current object
+
    trace!("Parse Unknown object: {}", _result_dn);
-   // for (key, value) in &_result_attrs {
-   //    println!("  {:?}:{:?}", key, value);
-   // }
-   // //trace result bin
-   // for (key, value) in &_result_bin {
-   //    println!("  {:?}:{:?}", key, value);
-   // }
+
+
+
+
+
+
+
 
    unknown_json
 }

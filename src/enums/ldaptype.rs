@@ -1,7 +1,7 @@
 use ldap3::SearchEntry;
-//use log::trace;
 
-/// Enum to get ldap object type.
+
+
 pub enum Type {
     User,
     Computer,
@@ -21,7 +21,7 @@ pub enum Type {
     Unknown
 }
 
-/// Get object type, like ("user","group","computer","ou", "container", "gpo", "domain" "trust").
+
 pub fn get_type(result: &SearchEntry) -> std::result::Result<Type, Type> {
     let result_attrs = &result.attrs;
 
@@ -100,7 +100,7 @@ pub fn get_type(result: &SearchEntry) -> std::result::Result<Type, Type> {
     Err(Type::Unknown)
 }
 
-/// Ldap directory path.
+
 pub struct DirectoryPaths;
 
 impl DirectoryPaths {

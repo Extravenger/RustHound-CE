@@ -11,7 +11,7 @@ use crate::utils::date::string_to_epoch;
 use crate::enums::secdesc::LdapSid;
 use crate::enums::sid::{objectsid_to_vec8, sid_maker};
 
-/// FSP (ForeignSecurityPrincipal) structure
+
 #[derive(Debug, Clone, Deserialize, Serialize, Default)]
 pub struct Fsp {
     #[serde(rename = "Properties")]
@@ -29,12 +29,12 @@ pub struct Fsp {
 }
 
 impl Fsp {
-    // New FSP
+
     pub fn new() -> Self { 
         Self { ..Default::default() } 
     }
 
-    /// Function to parse and replace value in json template for ForeignSecurityPrincipal object.
+
     pub fn parse(
         &mut self,
         result: SearchEntry,
@@ -46,19 +46,19 @@ impl Fsp {
         let result_attrs: HashMap<String, Vec<String>> = result.attrs;
         let result_bin: HashMap<String, Vec<Vec<u8>>> = result.bin_attrs;
 
-        // Debug for current object
+
         debug!("Parse ForeignSecurityPrincipal: {result_dn}");
 
-        // Trace all result attributes
+
         for (key, value) in &result_attrs {
             trace!("  {key:?}:{value:?}");
         }
-        // Trace all bin result attributes
+
         for (key, value) in &result_bin {
             trace!("  {key:?}:{value:?}");
         }
 
-        // Change all values...
+
         self.properties.domain = domain.to_uppercase();
         self.properties.distinguishedname = result_dn;    
 
@@ -66,19 +66,19 @@ impl Fsp {
         let mut sid: String = "".to_owned();
         let mut ftype: &str = "Base";
 
-        // With a check
+
         for (key, value) in &result_attrs {
             match key.as_str() {
                 "name" => {
                     let name = format!("{}-{}", domain, &value.first().unwrap_or(&"".to_owned()));
                     self.properties.name = name.to_uppercase();
 
-                    // Type for group Member maker
-                    // based on https://docs.microsoft.com/fr-fr/troubleshoot/windows-server/identity/security-identifiers-in-windows
+
+
                     let split = value[0].split("-").collect::<Vec<&str>>();
 
-                    // Not currently used:
-                    //let last = split.iter().last().unwrap_or(&"0").parse::<i32>().unwrap_or(0);
+
+
                     if split.len() >= 17 {
                         ftype = "User";
                     } else {
@@ -92,7 +92,7 @@ impl Fsp {
                     }
                 }
                 "objectSid" => {
-                    //objectSid to vec and raw to string
+
                     let vec_sid = objectsid_to_vec8(&value[0]);
                     sid = sid_maker(LdapSid::parse(&vec_sid).unwrap().1, domain);
                     self.object_identifier = sid.to_owned();
@@ -108,23 +108,23 @@ impl Fsp {
             }
         }
 
-        // Push DN and SID in HashMap
+
         if self.object_identifier != "SID" {
             dn_sid.insert(
                 self.properties.distinguishedname.to_string(),
                 self.object_identifier.to_string()
             );
-            // Push DN and Type
+
             sid_type.insert(self.object_identifier.to_string(), ftype.to_string());
         }
 
-        // Trace and return Fsp struct
-        // trace!("JSON OUTPUT: {:?}",serde_json::to_string(&self).unwrap());
+
+
         Ok(())
     }
 }
 
-/// Default FSP properties structure
+
 #[derive(Debug, Clone, Deserialize, Serialize, Default)]
 pub struct FspProperties {
    domain: String,
@@ -138,7 +138,7 @@ pub struct FspProperties {
 }
 
 impl FspProperties {
-   // New default properties.
+
    pub fn new(domain: String) -> Self { 
       Self { 
          domain,
@@ -146,7 +146,7 @@ impl FspProperties {
          ..Default::default() }
    }
 
-   // Immutable access.
+
    pub fn domain(&self) -> &String {
       &self.domain
    }
@@ -169,7 +169,7 @@ impl FspProperties {
       &self.whencreated
    }
 
-   // Mutable access.
+
    pub fn domain_mut(&mut self) -> &mut String {
       &mut self.domain
    }
@@ -194,12 +194,12 @@ impl FspProperties {
 }
 
 impl LdapObject for Fsp {
-    // To JSON
+
     fn to_json(&self) -> Value {
         serde_json::to_value(self).unwrap()
     }
 
-    // Get values
+
     fn get_object_identifier(&self) -> &String {
         &self.object_identifier
     }
@@ -228,7 +228,7 @@ impl LdapObject for Fsp {
         &false
     }
     
-    // Get mutable values
+
     fn get_aces_mut(&mut self) -> &mut Vec<AceTemplate> {
         &mut self.aces
     }
@@ -239,7 +239,7 @@ impl LdapObject for Fsp {
         panic!("Not used by current object.");
     }
     
-    // Edit values
+
     fn set_is_acl_protected(&mut self, is_acl_protected: bool) {
         self.is_acl_protected = is_acl_protected;
         self.properties.isaclprotected = is_acl_protected;
@@ -248,18 +248,18 @@ impl LdapObject for Fsp {
         self.aces = aces;
     }
     fn set_spntargets(&mut self, _spn_targets: Vec<SPNTarget>) {
-        // Not used by current object.
+
     }
     fn set_allowed_to_delegate(&mut self, _allowed_to_delegate: Vec<Member>) {
-        // Not used by current object.
+
     }
     fn set_links(&mut self, _links: Vec<Link>) {
-        // Not used by current object.
+
     }
     fn set_contained_by(&mut self, contained_by: Option<Member>) {
         self.contained_by = contained_by;
     }
     fn set_child_objects(&mut self, _child_objects: Vec<Member>) {
-        // Not used by current object.
+
     }
 }

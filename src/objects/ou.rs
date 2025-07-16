@@ -11,7 +11,7 @@ use crate::enums::gplink::parse_gplink;
 use crate::enums::sid::decode_guid_le;
 use crate::utils::date::string_to_epoch;
 
-/// Ou structure
+
 #[derive(Debug, Clone, Deserialize, Serialize, Default)]
 pub struct Ou {
     #[serde(rename = "GPOChanges")]
@@ -35,17 +35,17 @@ pub struct Ou {
 }
 
 impl Ou {
-    // New computer.
+
     pub fn new() -> Self { 
         Self { ..Default::default() } 
     }
 
-    // Immutable access.
+
     pub fn properties(&self) -> &OuProperties {
         &self.properties
     }
 
-    // Mutable access.
+
     pub fn gpo_changes_mut(&mut self) -> &mut GPOChange {
         &mut self.gpo_changes
     }
@@ -53,8 +53,8 @@ impl Ou {
         &mut self.child_objects
     }
 
-    /// Function to parse and replace value for OU object.
-    /// <https://bloodhound.readthedocs.io/en/latest/further-reading/json.html#ous>
+
+
     pub fn parse(
         &mut self,
         result: SearchEntry,
@@ -67,24 +67,24 @@ impl Ou {
         let result_attrs: HashMap<String, Vec<String>> = result.attrs;
         let result_bin: HashMap<String, Vec<Vec<u8>>> = result.bin_attrs;
 
-        // Debug for current object
+
         debug!("Parse OU: {result_dn}");
 
-        // Trace all result attributes
+
         for (key, value) in &result_attrs {
             trace!("  {key:?}:{value:?}");
         }
-        // Trace all bin result attributes
+
         for (key, value) in &result_bin {
             trace!("  {key:?}:{value:?}");
         }
 
-        // Change all values...
+
         self.properties.domain = domain.to_uppercase();
         self.properties.distinguishedname = result_dn;
         self.properties.domainsid = domain_sid.to_string();
 
-        // Check and replace value
+
         for (key, value) in &result_attrs {
              match key.as_str() {
                  "name" => {
@@ -114,16 +114,16 @@ impl Ou {
              }
         }
 
-          // For all, bins attributes
+
         for (key, value) in &result_bin {
              match key.as_str() {
                  "objectGUID" => {
-                     // objectGUID raw to string
+
                      self.object_identifier = decode_guid_le(&value[0]).to_owned();
                  }
                  "nTSecurityDescriptor" => {
-                     // trace!("nTSecurityDescriptor ACES ACLS ?");
-                     // nTSecurityDescriptor raw to string
+
+
                      let relations_ace = parse_ntsecuritydescriptor(
                           self,
                           &value[0],
@@ -137,30 +137,30 @@ impl Ou {
                  _ => {}
              }
         }
-        // Push DN and SID in HashMap
+
         dn_sid.insert(
              self.properties.distinguishedname.to_string(),
              self.object_identifier.to_string(),
         );
-        // Push DN and Type
+
         sid_type.insert(
             self.object_identifier.to_string(),
              "OU".to_string(),
         );
 
-        // Trace and return Ou struct
-        // trace!("JSON OUTPUT: {:?}",serde_json::to_string(&self).unwrap());
+
+
         Ok(())
     }
 }
 
 impl LdapObject for Ou {
-    // To JSON
+
     fn to_json(&self) -> Value {
         serde_json::to_value(self).unwrap()
     }
     
-    // Get values
+
     fn get_object_identifier(&self) -> &String {
         &self.object_identifier
     }
@@ -189,7 +189,7 @@ impl LdapObject for Ou {
         &false
     }
     
-    // Get mutable values
+
     fn get_aces_mut(&mut self) -> &mut Vec<AceTemplate> {
         &mut self.aces
     }
@@ -200,7 +200,7 @@ impl LdapObject for Ou {
         panic!("Not used by current object.");
     }
     
-    // Edit values
+
     fn set_is_acl_protected(&mut self, is_acl_protected: bool) {
         self.is_acl_protected = is_acl_protected;
         self.properties.isaclprotected = is_acl_protected;
@@ -209,10 +209,10 @@ impl LdapObject for Ou {
         self.aces = aces;
     }
     fn set_spntargets(&mut self, _spn_targets: Vec<SPNTarget>) {
-        // Not used by current object.
+
     }
     fn set_allowed_to_delegate(&mut self, _allowed_to_delegate: Vec<Member>) {
-        // Not used by current object.
+
     }
     fn set_links(&mut self, links: Vec<Link>) {
         self.links = links;
@@ -225,7 +225,7 @@ impl LdapObject for Ou {
     }
 }
 
-// Ou properties structure
+
 #[derive(Debug, Clone, Deserialize, Serialize, Default)]
 pub struct OuProperties {
     domain: String,
@@ -240,7 +240,7 @@ pub struct OuProperties {
 }
 
 impl OuProperties {
-    // Immutable access.
+
     pub fn name(&self) -> &String {
         &self.name
     }

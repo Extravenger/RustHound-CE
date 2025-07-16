@@ -12,8 +12,8 @@ use crate::enums::sid::{bin_to_string, sid_maker};
 use bitflags::bitflags;
 use log::{error, trace};
 
-/// This function allows to parse the attribut nTSecurityDescriptor from secdesc.rs
-/// <http://www.selfadsi.org/deep-inside/ad-security-descriptors.htm#SecurityDescriptorStructure>
+
+
 pub fn parse_ntsecuritydescriptor<T: LdapObject>(
     object: &mut T,
     nt: &Vec<u8>,
@@ -29,10 +29,10 @@ pub fn parse_ntsecuritydescriptor<T: LdapObject>(
     let secdesc: SecurityDescriptor = SecurityDescriptor::parse(nt).unwrap().1;
     trace!("SECURITY-DESCRIPTOR: {:?}", secdesc);
 
-    // Check for ACL protected for Bloodhound4.1+
-    // IsACLProtected
+
+
     let acl_is_protected = has_control(secdesc.control, SecurityDescriptorFlags::DACL_PROTECTED);
-    //trace!("{} acl_is_protected: {:?}",object.properties().name,acl_is_protected);
+
 
     match entry_type
     {
@@ -61,7 +61,7 @@ pub fn parse_ntsecuritydescriptor<T: LdapObject>(
             Ok(_res) => {
                 let sacl = _res.1;
                 trace!("SACL: {:?}", sacl);
-                //let aces = sacl.data;
+
                 /*ace_maker(
                     object,
                     domain,
@@ -106,8 +106,8 @@ pub fn parse_ntsecuritydescriptor<T: LdapObject>(
     relations_dacl
 }
 
-/// Parse ace in acl and get correct values (thanks fox-it for bloodhound.py works)
-/// <https://github.com/fox-it/BloodHound.py/blob/master/bloodhound/enumeration/acls.py>
+
+
 fn ace_maker<T: LdapObject>(
     object: &mut T,
     domain: &str,
@@ -118,10 +118,10 @@ fn ace_maker<T: LdapObject>(
     _result_attrs: &HashMap<String, Vec<String>>,
     _result_bin: &HashMap<String, Vec<Vec<u8>>>,
 ) {
-    // trace!("ACL/ACE FOR ENTRY: {:?}",object.properties().name);
-    // Ignore Creator Owner or Local System
+
+
     const IGNORE_SIDS: &[&str] = &["S-1-3-0", "S-1-5-18", "S-1-5-10"];
-    //, "S-1-1-0".to_string(), "S-1-5-10".to_string(), "S-1-5-11".to_string()];
+
     if IGNORE_SIDS.iter().any(|i| !osid.contains(i)) {
         relations.push(AceTemplate::new(
             osid.to_owned(),
@@ -143,43 +143,43 @@ fn ace_maker<T: LdapObject>(
         let sid = sid_maker(AceFormat::get_sid(ace.data.to_owned()).unwrap(), domain);
         trace!("SID for this ACE: {}", &sid);
 
-        // Check if sid is in the ignored list
+
         if IGNORE_SIDS.iter().any(|i| sid.contains(i))
         {
             continue;
         }
 
-        // https://github.com/fox-it/BloodHound.py/blob/645082e3462c93f31b571db945cde1fd7b837fb9/bloodhound/enumeration/acls.py#L74
+
         if ace.ace_type == 0x05 {
 
             trace!("TYPE: 0x05");
-            // GUID : inherited_object_type
+
             let inherited_object_type = AceFormat::get_inherited_object_type(&ace.data).unwrap_or_default();
-            // GUID : object_type
+
             let object_type = AceFormat::get_object_type(&ace.data).unwrap_or_default();
-            // Get and check ace.ace_flags object content INHERITED_ACE and return boolean
+
             let is_inherited = ace.ace_flags & INHERITED_ACE == INHERITED_ACE;
-            // Get the Flag for the ace.datas
+
             let flags = AceFormat::get_flags(&ace.data).unwrap().bits();
 
-            // https://github.com/fox-it/BloodHound.py/blob/645082e3462c93f31b571db945cde1fd7b837fb9/bloodhound/enumeration/acls.py#L77
+
             if (ace.ace_flags & INHERITED_ACE != INHERITED_ACE)
                 && (ace.ace_flags & INHERIT_ONLY_ACE == INHERIT_ONLY_ACE) 
             {
-                // ACE is set on this object, but only inherited, so not applicable to us
+
                 continue;
             }
 
-            // https://github.com/fox-it/BloodHound.py/blob/645082e3462c93f31b571db945cde1fd7b837fb9/bloodhound/enumeration/acls.py#L82
+
             if (ace.ace_flags & INHERITED_ACE == INHERITED_ACE) 
                 && (&flags & ACE_INHERITED_OBJECT_TYPE_PRESENT == ACE_INHERITED_OBJECT_TYPE_PRESENT)
             {
-                // ACE is set on this object, but only inherited, so not applicable to us
-                // need to verify if the ACE applies to this object type #todo
-                // Verify if the ACE applies to this object type
-                // if not ace_applies(ace_object.acedata.get_inherited_object_type().lower(), entrytype, objecttype_guid_map):
-                // continue
-                // https://github.com/fox-it/BloodHound.py/blob/645082e3462c93f31b571db945cde1fd7b837fb9/bloodhound/enumeration/acls.py#L85
+
+
+
+
+
+
                 let ace_guid = decode_guid_le(&inherited_object_type.to_le_bytes().to_vec()).to_lowercase();
                 if !(ace_applies(&ace_guid, entry_type)) {
                     continue;
@@ -195,7 +195,7 @@ fn ace_maker<T: LdapObject>(
             let ace_guid = decode_guid_le(&object_type.to_le_bytes().to_vec()).to_lowercase();
             trace!("ACE GUID for ACETYPE 0x05: {:?}", ace_guid);
 
-            // https://github.com/fox-it/BloodHound.py/blob/645082e3462c93f31b571db945cde1fd7b837fb9/bloodhound/enumeration/acls.py#L92
+
             if ((MaskFlags::GENERIC_ALL.bits() | mask) == mask)
                 || ((MaskFlags::WRITE_DACL.bits() | mask) == mask)
                 || ((MaskFlags::WRITE_OWNER.bits() | mask) == mask)
@@ -263,8 +263,8 @@ fn ace_maker<T: LdapObject>(
                 }
             }
 
-            // Property write privileges
-            // https://github.com/fox-it/BloodHound.py/blob/645082e3462c93f31b571db945cde1fd7b837fb9/bloodhound/enumeration/acls.py#L126
+
+
             if (MaskFlags::ADS_RIGHT_DS_WRITE_PROP.bits() | mask) == mask {
 
                 if ((entry_type == "User") || (entry_type == "Group") || (entry_type == "Computer"))
@@ -334,8 +334,8 @@ fn ace_maker<T: LdapObject>(
                         "".to_string(),
                     ));
                 }
-                // Since BloodHound 4.1
-                // AddKeyCredentialLink write access
+
+
                 if ((entry_type == "User") || (entry_type == "Computer"))
                     && (&flags & ACE_OBJECT_TYPE_PRESENT == ACE_OBJECT_TYPE_PRESENT)
                     && (&ace_guid == OBJECTTYPE_GUID_HASHMAP.get("ms-ds-key-credential-link").unwrap_or(&String::from("GUID-NOT-FOUND")))
@@ -375,8 +375,8 @@ fn ace_maker<T: LdapObject>(
                 }
             }
 
-            // Property read privileges
-            // https://github.com/fox-it/BloodHound.py/blob/645082e3462c93f31b571db945cde1fd7b837fb9/bloodhound/enumeration/acls.py#L138
+
+
             if (MaskFlags::ADS_RIGHT_DS_READ_PROP.bits() | mask) == mask 
             {
                 if (entry_type == "Computer")
@@ -396,11 +396,11 @@ fn ace_maker<T: LdapObject>(
                 }
             }
 
-            // Extended rights
-            // https://github.com/fox-it/BloodHound.py/blob/645082e3462c93f31b571db945cde1fd7b837fb9/bloodhound/enumeration/acls.py#L146
+
+
             if (MaskFlags::ADS_RIGHT_DS_CONTROL_ACCESS.bits() | mask) == mask 
             {
-                // All Extended
+
                 if ["User","Domain"].contains(&entry_type)
                     && (flags & ACE_OBJECT_TYPE_PRESENT != ACE_OBJECT_TYPE_PRESENT)
                 {
@@ -414,7 +414,7 @@ fn ace_maker<T: LdapObject>(
                 }
                 if (entry_type == "Computer")
                     && !(&flags & ACE_OBJECT_TYPE_PRESENT == ACE_OBJECT_TYPE_PRESENT)
-                    // && false
+
                 {
                     relations.push(AceTemplate::new(
                         sid.to_owned(),
@@ -493,8 +493,8 @@ fn ace_maker<T: LdapObject>(
             }
         }
 
-        // For AceType == 0x00
-        // https://github.com/fox-it/BloodHound.py/blob/645082e3462c93f31b571db945cde1fd7b837fb9/bloodhound/enumeration/acls.py#L162
+
+
         if ace.ace_type == 0x00 {
             trace!("TYPE: 0x00");
 
@@ -537,7 +537,7 @@ fn ace_maker<T: LdapObject>(
                     "".to_string(),
                 ));
             }
-            // For users and domain, check extended rights
+
             if ((entry_type == "User") || (entry_type == "Domain"))
                 && ((MaskFlags::ADS_RIGHT_DS_CONTROL_ACCESS.bits() | mask) == mask)
             {
@@ -549,10 +549,10 @@ fn ace_maker<T: LdapObject>(
                     "".to_string(),
                 ));
             }
-            // For computer
+
             if (entry_type == "Computer")
                 && ((MaskFlags::ADS_RIGHT_DS_CONTROL_ACCESS.bits() | mask) == mask)
-                // && false
+
             {
                 relations.push(AceTemplate::new(
                     sid.to_owned(),
@@ -572,8 +572,8 @@ fn ace_maker<T: LdapObject>(
                     "".to_string(),
                 ));
             }
-            // Self add, also possible ad ACCESS_ALLOWED_ACE
-            // Thanks to bh-py: <https://github.com/dirkjanm/BloodHound.py/blob/d47e765fd3d0356e2e4b48d0d9a0841525194c64/bloodhound/enumeration/acls.py#L221C1-L225C97>
+
+
             if (MaskFlags::ADS_RIGHT_DS_SELF.bits() & mask) == mask 
                 && sid != "S-1-5-32-544"
                 && !sid.ends_with("-512")
@@ -625,29 +625,29 @@ fn ace_maker<T: LdapObject>(
     }
 }
 
-/// Checks if the access is sufficient to write to a specific property.
-/// <https://github.com/fox-it/BloodHound.py/blob/645082e3462c93f31b571db945cde1fd7b837fb9/bloodhound/enumeration/acls.py#L193>
+
+
 fn can_write_property(
     ace: &Ace,
     bin_property: &str
 ) -> bool {
-    // This can either be because we have the right ADS_RIGHT_DS_WRITE_PROP and the correct GUID
-    // is set in ObjectType, or if we have the ADS_RIGHT_DS_WRITE_PROP right and the ObjectType
-    // is empty, in which case we can write to any property. This is documented in
-    // [MS-ADTS] section 5.1.3.2: https://msdn.microsoft.com/en-us/library/cc223511.aspx
 
-    // If not found, then assume can't write. Should not happen, but missing some parsers.
+
+
+
+
+
     let mask = match AceFormat::get_mask(&ace.data) {
         Some(mask) => mask,
         None => return false,
     };
 
     if (MaskFlags::ADS_RIGHT_DS_WRITE_PROP.bits() | mask) != mask {
-        //if not ace_object.acedata.mask.has_priv(ACCESS_MASK.ADS_RIGHT_DS_WRITE_PROP):
+
         return false;
     }
 
-    // Get the Flag for the ace.datas
+
     let flags = AceFormat::get_flags(&ace.data).unwrap().bits();
 
     if (flags & ACE_OBJECT_TYPE_PRESENT) != ACE_OBJECT_TYPE_PRESENT {
@@ -668,28 +668,28 @@ fn can_write_property(
     false
 }
 
-/// Checks if the access is sufficient to control the right with the given GUID.
-/// <https://github.com/fox-it/BloodHound.py/blob/645082e3462c93f31b571db945cde1fd7b837fb9/bloodhound/enumeration/acls.py#L211>
+
+
 fn has_extended_right(ace: &Ace, bin_right_guid: &str) -> bool {
-    // This can either be because we have the right ADS_RIGHT_DS_CONTROL_ACCESS and the correct GUID
-    // is set in ObjectType, or if we have the ADS_RIGHT_DS_CONTROL_ACCESS right and the ObjectType
-    // is empty, in which case we have all extended rights. This is documented in
-    // [MS-ADTS] section 5.1.3.2: https://msdn.microsoft.com/en-us/library/cc223511.aspx
+
+
+
+
 
     let mask = match AceFormat::get_mask(&ace.data) {
         Some(mask) => mask,
         None => return false,
     };
     if (MaskFlags::ADS_RIGHT_DS_CONTROL_ACCESS.bits() | mask) != mask {
-        // if not ace_object.acedata.mask.has_priv(ACCESS_MASK.ADS_RIGHT_DS_CONTROL_ACCESS):
+
         trace!("has_extended_right : return false for ADS_RIGHT_DS_CONTROL_ACCESS != mask");
         return false;
     }
-    // Get the Flag for the ace.datas
+
     let flags = AceFormat::get_flags(&ace.data).unwrap().bits();
 
     if (flags & ACE_OBJECT_TYPE_PRESENT) != ACE_OBJECT_TYPE_PRESENT {
-        // if not ace_object.acedata.has_flag(ACCESS_ALLOWED_OBJECT_ACE.ACE_OBJECT_TYPE_PRESENT):
+
         trace!("has_extended_right : return true for ACE_OBJECT_TYPE_PRESENT != ace_flags");
         return true;
     }
@@ -707,18 +707,18 @@ fn has_extended_right(ace: &Ace, bin_right_guid: &str) -> bool {
     false
 }
 
-/// Check if an ACE applies to this object.
-/// <https://github.com/fox-it/BloodHound.py/blob/645082e3462c93f31b571db945cde1fd7b837fb9/bloodhound/enumeration/acls.py#L229>
+
+
 fn ace_applies(ace_guid: &String, entry_type: &str) -> bool {
-    // Checks if an ACE applies to this object (based on object classes).
-    // Note that this function assumes you already verified that InheritedObjectType is set (via the flag).
-    // If this is not set, the ACE applies to all object types.
+
+
+
     trace!("ACE GUID: {}", &ace_guid);
     trace!("OBJECTTYPE_GUID_HASHMAP: {}",OBJECTTYPE_GUID_HASHMAP.get(entry_type).unwrap_or(&String::from("GUID-NOT-FOUND")));
     ace_guid == OBJECTTYPE_GUID_HASHMAP.get(entry_type).unwrap_or(&String::from("GUID-NOT-FOUND"))
 }
 
-/// Function to parse GMSA DACL which states which users (or groups) can read the password
+
 pub fn parse_gmsa(processed_aces: &[AceTemplate], user: &mut User) {
     for ace in processed_aces {
         if ace.right_name() == "Owner"  { // || ace.right_name() == "Owns" {
@@ -730,25 +730,25 @@ pub fn parse_gmsa(processed_aces: &[AceTemplate], user: &mut User) {
     }
 }
 
-/// Function to get relations for CASecurity from LDAP attribute.
+
 pub fn parse_ca_security(
     nt: &[u8],
     hosting_computer_sid: &String,
     domain: &str,
 ) -> Vec<AceTemplate> {
-    // The CASecurity exist in the AD object DACL and in registry of the CA server.
-    // SharpHound prefer to use the values from registry as they are the ground truth.
-    // If changes are made on the CA server, registry and the AD object is updated.
-    // If changes are made directly on the AD object, the CA server registry is not updated.
-    // For RustHound, we need to use AD object DACL because we dont have RPC to read registry yet.
+
+
+
+
+
     let blacklist_sid = [
-        // <https://learn.microsoft.com/fr-fr/windows-server/identity/ad-ds/manage/understand-security-identifiers>
+
         "-544", // Administrators
         "-519", // Enterprise Administrators
         "-512", // Domain Admins
     ];
     let mut relations:  Vec<AceTemplate> = Vec::new();
-    // Hosting Computer local administrator group is the owner.
+
     relations.push(AceTemplate::new(
         hosting_computer_sid.to_owned() + "-544",
         "LocalGroup".to_string(),
@@ -783,9 +783,9 @@ pub fn parse_ca_security(
                     if ace.ace_type == 0x00 {
                         if (MaskFlags::MANAGE_CERTIFICATES.bits() | mask) == mask
                         {
-                            // trace!("SID: {:?}\nMASK: ManageCertificates",&sid);
+
                             if !blacklist_sid.iter().any(|blacklisted| sid.ends_with(blacklisted)) {
-                                // HostingComputer SID, need to add -544 for LocalGroup
+
                                 relations.push(AceTemplate::new(
                                     sid.to_owned() + "-544",
                                     "LocalGroup".to_string(),
@@ -805,9 +805,9 @@ pub fn parse_ca_security(
                         }
                         if (MaskFlags::MANAGE_CA.bits() | mask) == mask
                         {
-                            // trace!("SID: {:?}\nMASK: ManageCA",&sid);
+
                             if !blacklist_sid.iter().any(|blacklisted| sid.ends_with(blacklisted)) {
-                                // HostingComputer SID, need to add -544 for LocalGroup
+
                                 relations.push(AceTemplate::new(
                                     sid.to_owned() + "-544",
                                     "LocalGroup".to_string(),
@@ -834,24 +834,24 @@ pub fn parse_ca_security(
     relations
 }
 
-// Access Mask contain value?
+
 bitflags! {
     pub struct MaskFlags: u32 {
-        // These constants are only used when WRITING
-        // and are then translated into their actual rights
+
+
         const SET_GENERIC_READ        = 0x80000000;
         const SET_GENERIC_WRITE       = 0x04000000;
         const SET_GENERIC_EXECUTE     = 0x20000000;
         const SET_GENERIC_ALL         = 0x10000000;
-        // When reading, these constants are actually represented by
-        // the following for Active Directory specific Access Masks
-        // Reference: https://docs.microsoft.com/en-us/dotnet/api/system.directoryservices.activedirectoryrights?view=netframework-4.7.2
+
+
+
         const GENERIC_READ            = 0x00020094;
         const GENERIC_WRITE           = 0x00020028;
         const GENERIC_EXECUTE         = 0x00020004;
         const GENERIC_ALL             = 0x000F01FF;
 
-        // These are actual rights (for all ACE types)
+
         const MAXIMUM_ALLOWED         = 0x02000000;
         const ACCESS_SYSTEM_SECURITY  = 0x01000000;
         const SYNCHRONIZE             = 0x00100000;
@@ -860,9 +860,9 @@ bitflags! {
         const READ_CONTROL            = 0x00020000;
         const DELETE                  = 0x00010000;
 
-        // ACE type specific mask constants (for ACCESS_ALLOWED_OBJECT_ACE)
-        // Note that while not documented, these also seem valid
-        // for ACCESS_ALLOWED_ACE types
+
+
+
         const ADS_RIGHT_DS_CONTROL_ACCESS         = 0x00000100;
         const ADS_RIGHT_DS_CREATE_CHILD           = 0x00000001;
         const ADS_RIGHT_DS_DELETE_CHILD           = 0x00000002;
@@ -870,7 +870,7 @@ bitflags! {
         const ADS_RIGHT_DS_WRITE_PROP             = 0x00000020;
         const ADS_RIGHT_DS_SELF                   = 0x00000008;
 
-        // ADCS
+
         const MANAGE_CA = 1;
         const MANAGE_CERTIFICATES = 2;
     }
@@ -902,7 +902,7 @@ fn has_control(secdesc_control: u16, flag: SecurityDescriptorFlags) -> bool {
     flags.contains(flag)
 }
 
-// OBJECTTYPE_GUID_HASHMAP with all know guid
+
 lazy_static! {
     static ref OBJECTTYPE_GUID_HASHMAP: HashMap<String, String> = {
         let values = [

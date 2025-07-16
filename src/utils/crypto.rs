@@ -1,16 +1,16 @@
 use sha1::{Sha1, Digest};
 
-/// Easy function to get SHA1 hash
+
 pub fn calculate_sha1(data: &[u8]) -> String {
     let mut hasher = Sha1::new();
     hasher.update(data);
     format!("{:X}", hasher.finalize())
 }
 
-/// Return encryption type msDS-SupportedEncryptionTypes to BloodHound-CE string format.
-/// <https://github.com/SpecterOps/SharpHoundCommon/blob/c953260325cbfd335ed2e9726cfe28d4b16357c8/src/CommonLib/Processors/LdapPropertyProcessor.cs#L731>
+
+
 pub fn convert_encryption_types(encryption_types: i32) -> Vec<String> {
-    // Define Kerberos Encryption Types as constants
+
     const DES_CBC_CRC: i32 = 0x1;
     const DES_CBC_MD5: i32 = 0x2;
     const RC4_HMAC_MD5: i32 = 0x4;
