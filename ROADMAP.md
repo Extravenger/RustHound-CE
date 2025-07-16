@@ -2,7 +2,7 @@
 
 ## Limitations
 
-> Not all [SharpHound](https://github.com/BloodHoundAD/SharpHound) features have been implemented. Some exist in `rusthound-ce` and not in [SharpHound](https://github.com/BloodHoundAD/SharpHound) or [BloodHound-Python](https://github.com/fox-it/BloodHound.py). Please refer to the [roadmap](./ROADMAP.md) for more information.
+> Not all [SharpHound](https://github.com/BloodHoundAD/SharpHound) features have been implemented. Some exist in `nonehound-ce` and not in [SharpHound](https://github.com/BloodHoundAD/SharpHound) or [BloodHound-Python](https://github.com/fox-it/BloodHound.py). Please refer to the [roadmap](./ROADMAP.md) for more information.
 
 ## Authentification
   - [x] LDAP (389) :white_check_mark:

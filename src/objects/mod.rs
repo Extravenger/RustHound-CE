@@ -3,13 +3,13 @@
 //! Example in rust:
 //!
 //! ```rust
-//! # use rusthound_ce::objects::user::User;
-//! # use rusthound_ce::objects::group::Group;
-//! # use rusthound_ce::objects::computer::Computer;
-//! # use rusthound_ce::objects::ou::Ou;
-//! # use rusthound_ce::objects::gpo::Gpo;
-//! # use rusthound_ce::objects::domain::Domain;
-//! # use rusthound_ce::objects::container::Container;
+//! # use nonehound_ce::objects::user::User;
+//! # use nonehound_ce::objects::group::Group;
+//! # use nonehound_ce::objects::computer::Computer;
+//! # use nonehound_ce::objects::ou::Ou;
+//! # use nonehound_ce::objects::gpo::Gpo;
+//! # use nonehound_ce::objects::domain::Domain;
+//! # use nonehound_ce::objects::container::Container;
 //!
 //! let user = User::new();
 //! let group = Group::new();

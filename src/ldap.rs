@@ -2,7 +2,7 @@
 //!
 //! This module will prepare your connection and request the LDAP server to retrieve all the information needed to create the json files.
 //!
-//! rusthound sends only one request to the LDAP server, if the result of this one is higher than the limit of the LDAP server limit it will be split in several requests to avoid having an error 4 (LDAP_SIZELIMIT_EXCEED).
+//! nonehound sends only one request to the LDAP server, if the result of this one is higher than the limit of the LDAP server limit it will be split in several requests to avoid having an error 4 (LDAP_SIZELIMIT_EXCEED).
 //!
 //! Example in rust
 //!

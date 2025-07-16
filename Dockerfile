@@ -1,6 +1,6 @@
 FROM rust:1.81.0-slim-bullseye
 
-WORKDIR /usr/src/rusthound-ce
+WORKDIR /usr/src/nonehound-ce
 
 RUN \
 	apt-get -y update && \

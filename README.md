@@ -2,7 +2,7 @@
     <picture>
         <source media="(prefers-color-scheme: dark)" srcset="https://github.com/g0h4n/RustHound-CE/raw/main/img/rusthoundce-transparent-dark-theme.png">
         <source media="(prefers-color-scheme: light)" srcset="https://github.com/g0h4n/RustHound-CE/raw/main/img/rusthoundce-transparent-light-theme.png">
-        <img src="https://github.com/g0h4n/RustHound-CE/raw/main/img/rusthoundce-transparent-dark-theme.png" alt="rusthound-ce logo" width='250' />
+        <img src="https://github.com/g0h4n/RustHound-CE/raw/main/img/rusthoundce-transparent-dark-theme.png" alt="nonehound-ce logo" width='250' />
     </picture>
 </p>
 
@@ -33,24 +33,24 @@ make windows
 Or using `docker` like below:
 
 ```bash
-docker build --rm -t rusthound-ce .
+docker build --rm -t nonehound-ce .
 
 # Then
-docker run --rm -v $PWD:/usr/src/rusthound-ce rusthound-ce help
-docker run --rm -v $PWD:/usr/src/rusthound-ce rusthound-ce release
-docker run --rm -v $PWD:/usr/src/rusthound-ce rusthound-ce windows
-docker run --rm -v $PWD:/usr/src/rusthound-ce rusthound-ce linux
+docker run --rm -v $PWD:/usr/src/nonehound-ce nonehound-ce help
+docker run --rm -v $PWD:/usr/src/nonehound-ce nonehound-ce release
+docker run --rm -v $PWD:/usr/src/nonehound-ce nonehound-ce windows
+docker run --rm -v $PWD:/usr/src/nonehound-ce nonehound-ce linux
 ```
 
 ## Installation
 
-<a href="https://crates.io/crates/rusthound-ce"><img alt="Crates.io Version" src="https://img.shields.io/crates/v/rusthound-ce"> <img alt="Crates.io Total Downloads" src="https://img.shields.io/crates/d/rusthound-ce?color=f74c00"></a>
+<a href="https://crates.io/crates/nonehound-ce"><img alt="Crates.io Version" src="https://img.shields.io/crates/v/nonehound-ce"> <img alt="Crates.io Total Downloads" src="https://img.shields.io/crates/d/nonehound-ce?color=f74c00"></a>
 
 Make sure the [required dependencies](https://github.com/g0h4n/RustHound-CE/blob/main/HELP.md#required-dependencies) are installed.
 
 ```bash
 # Install and/or update RustHound-CE from cargo command
-cargo install rusthound-ce
+cargo install nonehound-ce
 ```
 
 ## Usage
@@ -58,7 +58,7 @@ cargo install rusthound-ce
 Here's an example of a command to collect domain objects and obtain the zip archive containing the json files to be imported into BloodHound CE:
 
 ```bash
-rusthound-ce -d DOMAIN.LOCAL -u USERNAME@DOMAIN.LOCAL -z
+nonehound-ce -d DOMAIN.LOCAL -u USERNAME@DOMAIN.LOCAL -z
 ```
 
 More information and examples with how to compile RustHound-CE or how to use RustHound-CE can be found directly on the [help page](HELP.md).

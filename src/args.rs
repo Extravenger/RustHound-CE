@@ -45,7 +45,7 @@ pub const RUSTHOUND_VERSION: &str = env!("CARGO_PKG_VERSION");
 #[cfg(not(feature = "noargs"))]
 fn cli() -> Command {
     // Return Command args
-    Command::new("rusthound-ce")
+    Command::new("nonehound-ce")
     .version(RUSTHOUND_VERSION)
     .about("Active Directory data collector for BloodHound Community Edition.\ng0h4n <https://twitter.com/g0h4n_0>")
     .arg(Arg::new("v")

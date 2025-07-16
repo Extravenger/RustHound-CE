@@ -107,10 +107,10 @@ LIMIT 1000
 #### RustHound-CE - v2.3.0
 
 ```bash
-rusthound-ce.exe -c All -d ESSOS.local -u vagrant -p vagrant -z
+nonehound-ce.exe -c All -d ESSOS.local -u vagrant -p vagrant -z
 ```
 
-![rusthound-ce-shortest-path-example](./img/demo/RUSTHOUND_ESSOS_LOCAL_SHORTEST_PATH_EXAMPLE_24122024.png)
+![nonehound-ce-shortest-path-example](./img/demo/RUSTHOUND_ESSOS_LOCAL_SHORTEST_PATH_EXAMPLE_24122024.png)
 
 #### SharpHound - v2.5.9.0
 

@@ -4,7 +4,7 @@ pub mod modules;
 use env_logger::Builder;
 use log::{error, info, trace};
 
-use rusthound_ce::{
+use nonehound_ce::{
     args, ldap, objects,
     DiskStorage, DiskStorageReader,
     utils,
@@ -22,7 +22,7 @@ use banner::{print_banner, print_end_banner};
 use ldap::ldap_search;
 use modules::run_modules;
 
-const CACHE_DIR: &str = ".rusthound-cache";
+const CACHE_DIR: &str = ".nonehound-cache";
 const CACHE_FILE: &str = "ldap.bin";
 
 /// Main of RustHound
@@ -39,7 +39,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     // Build logger
     Builder::new()
-        .filter(Some("rusthound"), common_args.verbose)
+        .filter(Some("nonehound"), common_args.verbose)
         .filter_level(log::LevelFilter::Error)
         .init();
 
@@ -54,7 +54,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
                 .join(CACHE_FILE);
             info!("Resuming from cache: {}", format!("{}",ldap_cache_path.display()).bold());
             let cache = DiskStorageReader::from_path(ldap_cache_path)?;
-            rusthound_ce::prepare_results_from_source(cache, &common_args, None).await?
+            nonehound_ce::prepare_results_from_source(cache, &common_args, None).await?
         }
         false => {
             if common_args.cache {
@@ -88,7 +88,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
                 )
                 .await?;
 
-                rusthound_ce::prepare_results_from_source(
+                nonehound_ce::prepare_results_from_source(
                     cache_writer.into_reader()?,
                     &common_args,
                     Some(total_cached),
@@ -97,7 +97,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
             } else {
                 // store ldap results in memory
                 let mut ldap_results = Vec::new();
-                let total = rusthound_ce::ldap::ldap_search(
+                let total = nonehound_ce::ldap::ldap_search(
                     common_args.ldaps,
                     common_args.ip.as_deref(),
                     common_args.port,
@@ -110,7 +110,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
                     &mut ldap_results,
                 )
                 .await?;
-                rusthound_ce::prepare_results_from_source(ldap_results, &common_args, Some(total))
+                nonehound_ce::prepare_results_from_source(ldap_results, &common_args, Some(total))
                     .await?
             }
         }
@@ -125,7 +125,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
     .await?;
 
     // Add all in json files
-    match rusthound_ce::make_result(&common_args, results) {
+    match nonehound_ce::make_result(&common_args, results) {
         Ok(_) => trace!("Making json/zip files finished!"),
         Err(err) => error!("Error. Reason: {err}"),
     }

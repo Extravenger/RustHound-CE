@@ -25,7 +25,7 @@ You can use the **make** command to install RustHound or to compile it for Linux
 
 ```bash
 make install
-rusthound-ce -h
+nonehound-ce -h
 ```
 
 More command in the **Makefile**:
@@ -63,13 +63,13 @@ usage: make install_macos_deps
 Use RustHound with Docker to make sure to have all dependencies.
 
 ```bash
-docker build --rm -t rusthound-ce .
+docker build --rm -t nonehound-ce .
 
 # Then
-docker run --rm -v $PWD:/usr/src/rusthound-ce rusthound-ce help
-docker run --rm -v $PWD:/usr/src/rusthound-ce rusthound-ce windows
-docker run --rm -v $PWD:/usr/src/rusthound-ce rusthound-ce linux
-docker run --rm -v $PWD:/usr/src/rusthound-ce rusthound-ce macos
+docker run --rm -v $PWD:/usr/src/nonehound-ce nonehound-ce help
+docker run --rm -v $PWD:/usr/src/nonehound-ce nonehound-ce windows
+docker run --rm -v $PWD:/usr/src/nonehound-ce nonehound-ce linux
+docker run --rm -v $PWD:/usr/src/nonehound-ce nonehound-ce macos
 ```
 
 ## Using Cargo
@@ -196,7 +196,7 @@ More information [here](https://github.com/johnthagen/min-sized-rust)
 ## How to build the documentation?
 
 ```bash
-git clone https://github.com/g0h4n/rusthound-ce
+git clone https://github.com/g0h4n/nonehound-ce
 cd RustHound-CE
 cargo doc --open --no-deps
 ```
@@ -207,7 +207,7 @@ cargo doc --open --no-deps
 Active Directory data collector for BloodHound Community Edition.
 g0h4n <https://twitter.com/g0h4n_0>
 
-Usage: rusthound-ce [OPTIONS] --domain <domain>
+Usage: nonehound-ce [OPTIONS] --domain <domain>
 
 Options:
   -v...          Set the level of verbosity
@@ -246,57 +246,57 @@ OPTIONAL MODULES:
 
 ```bash
 # Linux with username:password
-rusthound-ce -d north.sevenkingdoms.local -u 'jeor.mormont@north.sevenkingdoms.local' -p '_L0ngCl@w_' -o /tmp/demo -z
+nonehound-ce -d north.sevenkingdoms.local -u 'jeor.mormont@north.sevenkingdoms.local' -p '_L0ngCl@w_' -o /tmp/demo -z
 
 # Linux with username:password DCOnly collection method
-rusthound-ce -c DCOnly -d north.sevenkingdoms.local -u 'jeor.mormont@north.sevenkingdoms.local' -p '_L0ngCl@w_' -o /tmp/demo -z
+nonehound-ce -c DCOnly -d north.sevenkingdoms.local -u 'jeor.mormont@north.sevenkingdoms.local' -p '_L0ngCl@w_' -o /tmp/demo -z
 
 # Linux with username:password and ldapip
-rusthound-ce -d north.sevenkingdoms.local -i 192.168.56.11 -u 'jeor.mormont@north.sevenkingdoms.local' -p '_L0ngCl@w_' -o /tmp/demo -z
+nonehound-ce -d north.sevenkingdoms.local -i 192.168.56.11 -u 'jeor.mormont@north.sevenkingdoms.local' -p '_L0ngCl@w_' -o /tmp/demo -z
 
 # Linux with username:password and ldaps
-rusthound-ce -d north.sevenkingdoms.local --ldaps -u 'jeor.mormont@north.sevenkingdoms.local' -p '_L0ngCl@w_' -o /tmp/demo -z 
+nonehound-ce -d north.sevenkingdoms.local --ldaps -u 'jeor.mormont@north.sevenkingdoms.local' -p '_L0ngCl@w_' -o /tmp/demo -z 
 # Linux with username:password and ldaps and custom port
-rusthound-ce -d north.sevenkingdoms.local --ldaps -P 3636 -u 'jeor.mormont@north.sevenkingdoms.local' -p '_L0ngCl@w_' -o /tmp/demo -z 
+nonehound-ce -d north.sevenkingdoms.local --ldaps -P 3636 -u 'jeor.mormont@north.sevenkingdoms.local' -p '_L0ngCl@w_' -o /tmp/demo -z 
 
 # Tips to redirect and append both standard output and standard error to a file > /tmp/rh_output 2>&1
-rusthound-ce -d north.sevenkingdoms.local --ldaps -u 'jeor.mormont@north.sevenkingdoms.local' -p '_L0ngCl@w_' -o /tmp/demo --fqdn-resolver > /tmp/rh_output 2>&1
+nonehound-ce -d north.sevenkingdoms.local --ldaps -u 'jeor.mormont@north.sevenkingdoms.local' -p '_L0ngCl@w_' -o /tmp/demo --fqdn-resolver > /tmp/rh_output 2>&1
 
 # Windows with GSSAPI session
-rusthound-ce.exe -d sevenkingdoms.local --ldapfqdn kingslanding
+nonehound-ce.exe -d sevenkingdoms.local --ldapfqdn kingslanding
 # Windows simple bind connection username:password (do not use single or double quotes with cmd.exe)
-rusthound-ce.exe -d sevenkingdoms.local -u jeor.mormont@north.sevenkingdoms.local -p _L0ngCl@w_ -o output -z
+nonehound-ce.exe -d sevenkingdoms.local -u jeor.mormont@north.sevenkingdoms.local -p _L0ngCl@w_ -o output -z
 
 # Kerberos authentication (Linux)
 export KRB5CCNAME="/tmp/jeor.mormont.ccache"
-rusthound-ce -d sevenkingdoms.local -f kingslanding -k -z
+nonehound-ce -d sevenkingdoms.local -f kingslanding -k -z
 # Kerberos authentication (Windows)
-rusthound-ce.exe -d sevenkingdoms.local -f kingslanding -k -z
+nonehound-ce.exe -d sevenkingdoms.local -f kingslanding -k -z
 ```
 
 ## Using disk instead of memory
 
 ```bash
-# Using disk instead of memory with --cache option, ldap bin datas will be stored in ".rusthound-cache/sevenkingdoms.local/ldap.bin"
-rusthound-ce -c All -d sevenkingdoms.local -u vagrant -p vagrant -o /tmp/demo -z --cache
+# Using disk instead of memory with --cache option, ldap bin datas will be stored in ".nonehound-cache/sevenkingdoms.local/ldap.bin"
+nonehound-ce -c All -d sevenkingdoms.local -u vagrant -p vagrant -o /tmp/demo -z --cache
 
 # Using --cache-buffer to set a buffer size to use when caching [default: 1000]
-rusthound-ce -c All -d sevenkingdoms.local -u vagrant -p vagrant -o /tmp/demo -z --cache --cache-buffer 10000
+nonehound-ce -c All -d sevenkingdoms.local -u vagrant -p vagrant -o /tmp/demo -z --cache --cache-buffer 10000
 
-# Using --resume to resume the collection from the last saved state file ".rusthound-cache/sevenkingdoms.local/ldap.bin"
-rusthound-ce -d sevenkingdoms.local -o /tmp/demo -z --resume 
+# Using --resume to resume the collection from the last saved state file ".nonehound-cache/sevenkingdoms.local/ldap.bin"
+nonehound-ce -d sevenkingdoms.local -o /tmp/demo -z --resume 
 ```
 
 ## Module FQDN resolver
 
 ```bash
 # Linux with username:password and FQDN resolver module
-rusthound-ce -d essos.local -u 'daenerys.targaryen@essos.local' -p 'BurnThemAll!' -o /tmp/demo --fqdn-resolver -z
+nonehound-ce -d essos.local -u 'daenerys.targaryen@essos.local' -p 'BurnThemAll!' -o /tmp/demo --fqdn-resolver -z
 # Linux with username:password and ldaps and FQDN resolver module and TCP DNS request and custom name server
-rusthound-ce -d essos.local --ldaps -u 'daenerys.targaryen@essos.local' -p 'BurnThemAll!' -o /tmp/demo --fqdn-resolver --tcp-dns --name-server 192.168.56.12 -z
+nonehound-ce -d essos.local --ldaps -u 'daenerys.targaryen@essos.local' -p 'BurnThemAll!' -o /tmp/demo --fqdn-resolver --tcp-dns --name-server 192.168.56.12 -z
 
 # Windows with GSSAPI session and FQDN resolver module
-rusthound-ce.exe -d essos.local -f meereen -o output --fqdn-resolver -z
+nonehound-ce.exe -d essos.local -f meereen -o output --fqdn-resolver -z
 # Windows simple bind connection username:password and FQDN resolver module and TCP DNS request and custom name server (do not use single or double quotes with cmd.exe)
-rusthound-ce.exe -d essos.local -u daenerys.targaryen@essos.local -p BurnThemAll! -o output -z --fqdn-resolver --tcp-dns --name-server 192.168.56.12 
+nonehound-ce.exe -d essos.local -u daenerys.targaryen@essos.local -p BurnThemAll! -o output -z --fqdn-resolver --tcp-dns --name-server 192.168.56.12 
 ```

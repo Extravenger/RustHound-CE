@@ -105,7 +105,7 @@ pub fn parse_result_type_from_source(
 
     log::info!("Starting the LDAP objects parsing...");
 
-    let output_dir = format!(".rusthound-cache/{domain}");
+    let output_dir = format!(".nonehound-cache/{domain}");
     std::fs::create_dir_all(&output_dir)?;
 
     let dn_sid = &mut results.mappings.dn_sid;

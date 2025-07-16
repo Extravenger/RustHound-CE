@@ -2,7 +2,7 @@
 //!     <picture>
 //!         <source media="(prefers-color-scheme: dark)" srcset="https://github.com/g0h4n/RustHound-CE/raw/main/img/rusthoundce-transparent-dark-theme.png">
 //!         <source media="(prefers-color-scheme: light)" srcset="https://github.com/g0h4n/RustHound-CE/raw/main/img/rusthoundce-transparent-light-theme.png">
-//!         <img src="https://github.com/g0h4n/RustHound-CE/raw/main/img/rusthoundce-transparent-dark-theme.png" alt="rusthound-ce logo" width='250' />
+//!         <img src="https://github.com/g0h4n/RustHound-CE/raw/main/img/rusthoundce-transparent-dark-theme.png" alt="nonehound-ce logo" width='250' />
 //!     </picture>
 //! </p>
 //! <hr />
@@ -20,7 +20,7 @@
 //! Active Directory data collector for BloodHound Community Edition.
 //! g0h4n <https://twitter.com/g0h4n_0>
 //! 
-//! Usage: rusthound-ce [OPTIONS] --domain <domain>
+//! Usage: nonehound-ce [OPTIONS] --domain <domain>
 //! 
 //! Options:
 //!   -v...          Set the level of verbosity
@@ -65,7 +65,7 @@
 //! 
 //! Or build your own using the ldap_search() function:
 //! ```ignore
-//! # use rusthound::ldap::ldap_search;
+//! # use nonehound::ldap::ldap_search;
 //! # let ldaps = true;
 //! # let ip = Some("127.0.0.1");
 //! # let port = Some(676);

@@ -1,4 +1,4 @@
-prog :=rusthound-ce
+prog :=nonehound-ce
 
 cargo := $(shell command -v cargo 2> /dev/null)
 cargo_v := $(shell cargo -V| cut -d ' ' -f 2)
@@ -34,10 +34,10 @@ doc: check_cargo
 
 install: check_cargo
 	cargo install --path .
-	@echo "[+] rusthound-ce installed!"
+	@echo "[+] nonehound-ce installed!"
 
 uninstall:
-	@cargo uninstall rusthound-ce
+	@cargo uninstall nonehound-ce
 
 clean:
 	cargo clean

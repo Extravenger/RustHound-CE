@@ -3,6 +3,6 @@ target/
 *.zip
 *.exe
 datas/
-rusthound-ce*
+nonehound-ce*
 .vscode
-.rusthound-cache
+.nonehound-cache
