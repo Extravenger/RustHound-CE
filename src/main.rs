@@ -18,7 +18,7 @@ use args::auto_args;
 #[cfg(not(feature = "noargs"))]
 use args::{extract_args, Options};
 
-use banner::{print_banner, print_end_banner};
+use banner::{print_end_banner};
 use ldap::ldap_search;
 use modules::run_modules;
 
@@ -28,8 +28,6 @@ const CACHE_FILE: &str = "ldap.bin";
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
-
-    print_banner();
 
 
     #[cfg(not(feature = "noargs"))]
