@@ -40,14 +40,14 @@ pub enum CollectionMethod {
 }
 
 
-pub const RUSTHOUND_VERSION: &str = env!("CARGO_PKG_VERSION");
+pub const NONEHOUND_VERSION: &str = env!("CARGO_PKG_VERSION");
 
 #[cfg(not(feature = "noargs"))]
 fn cli() -> Command {
 
     Command::new("nonehound-ce")
-    .version(RUSTHOUND_VERSION)
-    .about("Active Directory data collector for BloodHound Community Edition.\ng0h4n <https://twitter.com/g0h4n_0>")
+    .version(NONEHOUND_VERSION)
+    .about("Just a collector.")
     .arg(Arg::new("v")
         .short('v')
         .help("Set the level of verbosity")
